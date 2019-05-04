@@ -12,7 +12,7 @@ with open(path.join(here, 'README.md'), encoding='utf-8') as f:
 
 setup(
     name='aab',
-    version='0.0.0',
+    version='0.1.0',
     # TODO: use release link
     download_url="https://github.com/glutanimate/anki-addon-builder/tarball/master",
     description='Anki Add-on Builder',

@@ -50,7 +50,7 @@ from pathlib import Path
 
 # Meta
 
-__version__ = "0.0.0"
+__version__ = "0.1.0"
 __author__ = "Aristotelis P. (Glutanimate)"
 __title__ = "Anki Add-on Builder"
 __homepage__ = "https://glutanimate.com"
