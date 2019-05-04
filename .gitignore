@@ -1,0 +1,35 @@
+# Byte-compiled / optimized / DLL files
+*.pyo
+*.pyc
+__pycache__/
+# Python
+.python-version
+.mypy_cache/
+.ropeproject
+.env
+.venv
+env/
+venv/
+ENV/
+env.bak/
+venv.bak/
+# IDEs
+*.sublime-project
+*.sublime-workspace
+.sublime-backup/
+.idea/
+.vscode/
+# Temp
+.gitold
+obsolete
+research
+# Linux FM
+.hidden
+.directory
+# Docs
+todo
+# GitHub
+labels.toml
+# Other
+.bumpversion.cfg
+install.sh

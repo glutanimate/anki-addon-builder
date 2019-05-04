@@ -1,0 +1,4 @@
+# Please note that the requirements only apply to Anki 2.1
+# Setting up a development environment for Anki 2.0 through pip
+# is not possible at the point of writing.
+.
