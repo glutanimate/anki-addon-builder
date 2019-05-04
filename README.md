@@ -3,17 +3,9 @@
 An opinionated build tool for Anki add-ons. Used in most of my major Anki projects.
 
 - [Disclaimer](#disclaimer)
-  - [Project State](#project-state)
-  - [Platform Support](#platform-support)
 - [Installation](#installation)
-  - [Installation Requirements](#installation-requirements)
-  - [Installing from Source](#installing-from-source)
 - [Usage](#usage)
-  - [Building an Add-on for Anki 2.1](#building-an-add-on-for-anki-21)
-  - [Compiling UI files for Anki 2.1](#compiling-ui-files-for-anki-21)
-- [Project Requirements](#project-requirements)
-  - [Project Structure](#project-structure)
-  - [addon.json](#addonjson)
+- [Specifications](#specifications)
 - [License and Credits](#license-and-credits)
 
 ### Disclaimer
@@ -24,27 +16,25 @@ This is still very much a work-in-progress. Neither the API, nor the implementat
 
 #### Platform Support
 
-`aab` has only been tested on Linux so far, but it should also work on other POSIX-compliant environments like macOS.
+`aab` has only been tested on Linux so far, but it might also work on other POSIX-compliant environments like macOS.
 
 ### Installation
 
-#### Installation Requirements
+#### Requirements
 
 `aab` requires a proper development environment in order to work correctly. Please refer to [Anki's documentation](https://github.com/dae/anki/blob/master/README.development) for information on how to set this up for Anki 2.1.
 
-#### Installing from Source
+#### Installing from pip
 
-Installing `aab` itself should be fairly quick and simple thanks to `pip`:
+    pip install aab
 
-    # Installing from master
+#### Installing from master
+
     pip install --upgrade git+https://github.com/glutanimate/anki-addon-builder.git
-
-    # Installing a specific release
-    pip install --upgrade git+https://github.com/glutanimate/anki-addon-builder.git@v0.1.0
 
 ### Usage
 
-You can get an overview of all supported actions by accessing the built-in help option:
+You can get an overview of all supported actions by accessing the built-in help:
 
 ```
 $ aab -h
@@ -82,7 +72,7 @@ aab build
 aab ui -t anki21
 ```
 
-### Project Requirements
+### Specifications
 
 #### Project Structure
 
@@ -96,11 +86,11 @@ project root
 └── addon.json [required] (contains add-on meta information read by aab)
 ```
 
-For a more detailed look at the entire directory tree please refer to my recently updated add-on repositories.
+For a more detailed look at the entire directory tree please feel free to take a look at some of the [add-ons I've published recently](https://github.com/topics/anki-addon?o=desc&q=user%3Aglutanimate&s=updated).
 
 #### addon.json
 
-Metadata needed by `aab` to work correctly is stored in an `addon.json` file at the root of the project tree. For more information on its fields and their specifications please refer to the [schema file](./aab/schema.json).
+All of the metadata needed by `aab` to work correctly is stored in an `addon.json` file at the root of the project tree. For more information on its fields and their specifications please refer to the [schema file](./aab/schema.json).
 
 ### License and Credits
 
