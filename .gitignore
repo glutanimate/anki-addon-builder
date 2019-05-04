@@ -13,6 +13,8 @@ venv/
 ENV/
 env.bak/
 venv.bak/
+*.egg-info
+dist
 # IDEs
 *.sublime-project
 *.sublime-workspace
