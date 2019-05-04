@@ -6,6 +6,8 @@ An opinionated build tool for Anki add-ons. Used in most of my major Anki projec
   - [Project State](#project-state)
   - [Platform Support](#platform-support)
 - [Installation](#installation)
+  - [Installation Requirements](#installation-requirements)
+  - [Installing from Source](#installing-from-source)
 - [Usage](#usage)
   - [Building an Add-on for Anki 2.1](#building-an-add-on-for-anki-21)
   - [Compiling UI files for Anki 2.1](#compiling-ui-files-for-anki-21)
@@ -26,11 +28,19 @@ This is still very much a work-in-progress. Neither the API, nor the implementat
 
 ### Installation
 
+#### Installation Requirements
+
 `aab` requires a proper development environment in order to work correctly. Please refer to [Anki's documentation](https://github.com/dae/anki/blob/master/README.development) for information on how to set this up for Anki 2.1.
 
-Installing the `aab` itself should be fairly quick and simple thanks to `pip`:
+#### Installing from Source
 
+Installing `aab` itself should be fairly quick and simple thanks to `pip`:
 
+    # Installing from master
+    pip install --upgrade git+https://github.com/glutanimate/anki-addon-builder.git
+
+    # Installing a specific release
+    pip install --upgrade git+https://github.com/glutanimate/anki-addon-builder.git@v0.1.0
 
 ### Usage
 
