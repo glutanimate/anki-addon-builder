@@ -122,7 +122,7 @@ class UIBuilder(object):
                 continue
             self._build(filetype, path_in, path_out, target, pyenv)
 
-        logging.info("Done will all UI build tasks.")
+        logging.info("Done with all UI build tasks.")
 
     def _build(self, filetype, path_in, path_out, target, pyenv):
         settings = self._types[filetype]
