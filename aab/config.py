@@ -39,6 +39,7 @@ from __future__ import (absolute_import, division,
 
 import json
 import logging
+from copy import copy
 
 import jsonschema
 from jsonschema.exceptions import ValidationError
@@ -89,7 +90,7 @@ class Config(object):
             "author": config["author"],
             "version": version,
             "homepage": config.get("homepage", ""),
-            "conflicts": config["conflicts"],
+            "conflicts": copy(config["conflicts"]),
             "mod": Git().modtime(version)
         }
 
