@@ -110,7 +110,7 @@ class UIBuilder(object):
         }
         self._format_dict = self._get_format_dict()
 
-    def build(self, target="anki21"):
+    def build(self, target="anki21", pyenv=None):
         logging.info("Starting UI build tasks for target %r...", target)
 
         for filetype, paths in self._paths.items():
@@ -120,11 +120,11 @@ class UIBuilder(object):
                 logging.warning("No Qt %s folder found. Skipping build.",
                                 filetype)
                 continue
-            self._build(filetype, path_in, path_out, target)
+            self._build(filetype, path_in, path_out, target, pyenv)
 
         logging.info("Done will all UI build tasks.")
 
-    def _build(self, filetype, path_in, path_out, target):
+    def _build(self, filetype, path_in, path_out, target, pyenv):
         settings = self._types[filetype]
 
         # Basic checks
@@ -160,6 +160,8 @@ class UIBuilder(object):
 
         suffix = settings["suffix"]
         modules = []
+        
+        env = "" if not pyenv else self._pyenv_prefix(pyenv)
 
         for in_file in ui_files:
             stem = in_file.stem
@@ -168,7 +170,8 @@ class UIBuilder(object):
 
             logging.debug("Building element '%s'...", new_stem)
             # Use relative paths to improve readability of form header:
-            cmd = "{tool} {in_file} -o {out_file}".format(
+            cmd = "{env} {tool} {in_file} -o {out_file}".format(
+                env=env,
                 tool=tool,
                 in_file=relpath(in_file),
                 out_file=relpath(out_file))
@@ -185,6 +188,11 @@ class UIBuilder(object):
 
         logging.debug("Done with %s.", filetype)
         return True
+
+    def _pyenv_prefix(self, pyenv):
+        return ('''eval "$(pyenv init -)"'''
+                '''&& eval "$(pyenv virtualenv-init -)"'''
+                '''&& pyenv activate {pyenv} &&'''.format(pyenv=pyenv))
 
     def _get_format_dict(self):
         config = self._config

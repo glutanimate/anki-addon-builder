@@ -72,16 +72,14 @@ def build(args):
     else:
         dists = [args.dist]
 
-    version = args.version
-    post_build = args.post_build
-
+    builder = AddonBuilder(version=args.version)
+    
     cnt = 1
     total = len(targets) * len(dists)
     for target in targets:
         for dist in dists:
-            logging.info("\n=== Build task %s/%s ===\n", cnt, total)
-            builder = AddonBuilder(target=target, disttype=dist)
-            builder.build(version=version, post_archive=post_build)
+            logging.info("\n=== Build task %s/%s ===", cnt, total)
+            builder.build(target=target, disttype=dist)
             cnt += 1
 
 
@@ -136,10 +134,6 @@ def construct_parser():
         help="Build and package add-on for distribution"
     )
     build_group.add_argument("version", nargs="?")
-    build_group.add_argument(
-        "-p", "--post-build",
-        help="Command to run before packaging, once build complete",
-        required=False)
     build_group.set_defaults(func=build)
 
     ui_group = subparsers.add_parser(
