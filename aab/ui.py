@@ -209,7 +209,7 @@ class UIBuilder(object):
         format_dict = {
             "display_name": config["display_name"],
             "author": config["author"],
-            "contact": config["contact"],
+            "contact": config.get("contact"),
             "__title__": __title__,
             "__version__": __version__,
             "years": years,
