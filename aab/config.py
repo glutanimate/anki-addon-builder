@@ -94,9 +94,9 @@ class Config(object):
         }
 
         # Update values for distribution type
-        if disttype == "local":
+        if disttype == "local" and config["ankiweb_id"]:
             manifest["conflicts"].insert(0, config["ankiweb_id"])
-        elif disttype == "ankiweb":
+        elif disttype == "ankiweb" and config["module_name"]:
             manifest["conflicts"].insert(0, config["module_name"])
             # this is inconsistent, but we can't do much else when
             # ankiweb_id is still unknown (i.e. first upload):
