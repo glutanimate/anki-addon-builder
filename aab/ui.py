@@ -192,7 +192,8 @@ class UIBuilder(object):
     def _pyenv_prefix(self, pyenv):
         return ('''eval "$(pyenv init -)"'''
                 '''&& eval "$(pyenv virtualenv-init -)"'''
-                '''&& pyenv activate {pyenv} &&'''.format(pyenv=pyenv))
+                '''&& pyenv activate {pyenv} > /dev/null 2>&1 &&'''.format(
+                    pyenv=pyenv))
 
     def _get_format_dict(self):
         config = self._config
