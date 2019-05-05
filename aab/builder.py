@@ -64,6 +64,7 @@ class AddonBuilder(object):
             "src" / self._config["module_name"]
 
     def build(self, target="anki21", disttype="local", pyenv=None):
+        
         logging.info("\n--- Building %s %s for %s/%s ---\n",
                      self._config["display_name"], self._version,
                      target, disttype)
@@ -83,7 +84,8 @@ class AddonBuilder(object):
 
         self._write_manifest(disttype)
         self._build_ui(target, pyenv)
-        self._package(target, disttype)
+        
+        return self._package(target, disttype)
 
     def clean(self):
         logging.info("Cleaning repository...")
@@ -135,6 +137,8 @@ class AddonBuilder(object):
 
         logging.info("Package saved as {out_name}".format(out_name=out_name))
         logging.info("Done.")
+        
+        return out_path
 
     def _write_manifest(self, disttype):
         logging.info("Writing manifest...")
