@@ -62,15 +62,8 @@ def validate_cwd():
 ##############################################################################
 
 def build(args):
-    if args.target == "all":
-        targets = Config()["targets"]
-    else:
-        targets = [args.target]
-
-    if args.dist == "all":
-        dists = DIST_TYPES
-    else:
-        dists = [args.dist]
+    targets = [args.target] if args.target != "all" else Config()["targets"]
+    dists = [args.dist] if args.dist != "all" else DIST_TYPES
 
     builder = AddonBuilder(version=args.version)
     
@@ -84,10 +77,7 @@ def build(args):
 
 
 def ui(args):
-    if args.target == "all":
-        targets = Config()["targets"]
-    else:
-        targets = [args.target]
+    targets = [args.target] if args.target != "all" else Config()["targets"]
 
     builder = UIBuilder(root=PATH_ROOT)
 
