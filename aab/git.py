@@ -59,4 +59,4 @@ class Git(object):
         return call_shell(cmd)
 
     def modtime(self, version):
-        return int(call_shell("git show -s --format=%ct {}".format(version)))
+        return int(call_shell("git log -1 -s --format=%ct {}".format(version)))
