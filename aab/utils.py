@@ -47,7 +47,7 @@ from . import PATH_ROOT
 PY2K = sys.version_info < (3, 0)
 unicode = unicode if PY2K else str  # noqa:F821
 
-def call_shell(command, echo=False, **kwargs):
+def call_shell(command, echo=False, error_exit=True, **kwargs):
     try:
         out = subprocess.check_output(command, shell=True, **kwargs)
         decoded = out.decode("utf-8").strip()
@@ -58,7 +58,9 @@ def call_shell(command, echo=False, **kwargs):
         logging.error("Error while running command: '{command}'".format(
                       command=command))
         logging.error(e.output.decode("utf-8"))
-        sys.exit(1)
+        if error_exit:
+            sys.exit(1)
+        return False
 
 
 def purge(path, patterns, recursive=False):
