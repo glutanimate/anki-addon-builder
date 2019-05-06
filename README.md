@@ -22,9 +22,9 @@ This is still very much a work-in-progress. Neither the API, nor the implementat
 
 #### Requirements
 
-`aab` requires a proper development environment in order to work correctly. Please refer to [Anki's documentation](https://github.com/dae/anki/blob/master/README.development) for information on how to set this up for Anki 2.1.
+`aab` needs to be run in an Anki development environment to work correctly. Please refer to [Anki's documentation](https://github.com/dae/anki/blob/master/README.development) for information on how to set this up.
 
-#### Installing from pip
+#### Installing from PyPI
 
     pip install aab
 
