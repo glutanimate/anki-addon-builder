@@ -54,6 +54,7 @@ class Git(object):
             # giving up and exiting
             version = call_shell("git rev-parse --short HEAD")
             version = "v0.0.0-" + version
+        return version
 
     def archive(self, version, outdir):
         logging.info("Exporting Git archive...")
