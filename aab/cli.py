@@ -168,13 +168,7 @@ def main():
     logging.basicConfig(stream=sys.stdout, level=level, format="%(message)s")
 
     # Run
-
-    try:
-        args.func(args)
-    except AttributeError as e:
-        print(e)
-        parser.print_help()
-        parser.exit()
+    args.func(args)
 
 if __name__ == "__main__":
     main()
