@@ -48,7 +48,12 @@ class Git(object):
         cmd = "git describe HEAD --tags"
         if commit is False:
             cmd += " --abbrev=0"
-        return call_shell(cmd)
+        version = call_shell(cmd, error_exit=False)
+        if version is False:
+            # Perhaps no tag has been set yet. Try to grab commit ID before
+            # giving up and exiting
+            version = call_shell("git rev-parse --short HEAD")
+            version = "v0.0.0-" + version
 
     def archive(self, version, outdir):
         logging.info("Exporting Git archive...")
