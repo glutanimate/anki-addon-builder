@@ -58,15 +58,16 @@ class Config(object):
     with (PATH_PACKAGE / "schema.json").open("r", encoding="utf-8") as f:
         _schema = json.loads(f.read())
 
-    def __init__(self):
+    def __init__(self, path=None):
+        path = path or PATH_CONFIG
         try:
-            with PATH_CONFIG.open(encoding="utf-8") as f:
+            with path.open(encoding="utf-8") as f:
                 self._dict = json.loads(f.read())
             jsonschema.validate(self._dict, self._schema)
         except (IOError, OSError, ValueError, ValidationError):
             self._dict = None
             logging.error("Error: Could not read '{}'. Traceback follows "
-                          "below:\n".format(PATH_CONFIG.name))
+                          "below:\n".format(path.name))
             raise
 
     def get(self, *args, **kwargs):
