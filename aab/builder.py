@@ -50,9 +50,16 @@ from .git import Git
 from .ui import UIBuilder
 from .utils import purge, unicode, copy_recursively
 
+_trash_patterns = ["*.pyc", "*.pyo", "__pycache__"]
+
+def clean_repo():
+    logging.info("Cleaning repository...")
+    if PATH_DIST.exists():
+        shutil.rmtree(unicode(PATH_DIST))
+    purge(".", _trash_patterns, recursive=True)
+
 class AddonBuilder(object):
 
-    _trash_patterns = ["*.pyc", "*.pyo", "__pycache__"]
     _paths_licenses = [PATH_DIST, PATH_DIST / "resources"]
     _path_optional_icons = PATH_ROOT / "resources" / "icons" / "optional"
     _path_changelog = PATH_DIST / "CHANGELOG.md"
@@ -73,7 +80,7 @@ class AddonBuilder(object):
                      self._config["display_name"], self._version,
                      target, disttype)
         
-        self.clean()
+        clean_repo()
 
         PATH_DIST.mkdir(parents=True)
         Git().archive(self._version, PATH_DIST)
@@ -90,12 +97,6 @@ class AddonBuilder(object):
         self._build_ui(target, pyenv)
         
         return self._package(target, disttype)
-
-    def clean(self):
-        logging.info("Cleaning repository...")
-        if PATH_DIST.exists():
-            shutil.rmtree(unicode(PATH_DIST))
-        purge(".", self._trash_patterns, recursive=True)
 
     def _build_ui(self, target, pyenv):
         logging.info("Building UI...")

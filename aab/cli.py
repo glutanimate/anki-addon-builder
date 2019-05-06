@@ -40,7 +40,7 @@ import argparse
 
 from . import PATH_ROOT, COPYRIGHT_MSG, DIST_TYPES
 from .config import Config, PATH_CONFIG
-from .builder import AddonBuilder
+from .builder import AddonBuilder, clean_repo
 from .ui import UIBuilder
 from .utils import PY2K
 
@@ -90,8 +90,7 @@ def ui(args):
 
 
 def clean(args):
-    builder = AddonBuilder()
-    return builder.clean()
+    return clean_repo()
 
 
 # Argument parsing
