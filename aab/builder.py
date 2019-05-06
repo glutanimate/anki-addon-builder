@@ -38,6 +38,7 @@ from __future__ import (absolute_import, division,
                         print_function, unicode_literals)
 
 import os
+import sys
 import shutil
 import json
 import zipfile
@@ -58,6 +59,9 @@ class AddonBuilder(object):
 
     def __init__(self, version=None, callback_archive=None):
         self._version = self._get_version(version)
+        if not self._version:
+            logging.error("Error: Version could not be determined from Git")
+            sys.exit(1)
         self._callback_archive = callback_archive
         self._config = Config()
         self._path_dist_module = PATH_DIST / \
