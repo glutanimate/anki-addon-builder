@@ -69,8 +69,8 @@ class Config(object):
                           "below:\n".format(PATH_CONFIG.name))
             raise
 
-    def get(self, name):
-        return self._dict.get(name)
+    def get(self, *args, **kwargs):
+        return self._dict.get(*args, **kwargs)
 
     def __getitem__(self, name):
         return self._dict[name]
