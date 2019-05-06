@@ -40,6 +40,7 @@ from __future__ import (absolute_import, division,
 import json
 import logging
 from copy import copy
+from collections import UserDict
 
 import jsonschema
 from jsonschema.exceptions import ValidationError
@@ -49,41 +50,44 @@ from .git import Git
 
 PATH_CONFIG = PATH_ROOT / "addon.json"
 
-class Config(object):
+
+class Config(UserDict):
 
     """
     Initialize a read-only add-on config object
     """
-    
+
     with (PATH_PACKAGE / "schema.json").open("r", encoding="utf-8") as f:
         _schema = json.loads(f.read())
 
     def __init__(self, path=None):
-        path = path or PATH_CONFIG
+        self._path = path or PATH_CONFIG
         try:
-            with path.open(encoding="utf-8") as f:
-                self._dict = json.loads(f.read())
-            jsonschema.validate(self._dict, self._schema)
+            with self._path.open(encoding="utf-8") as f:
+                data = json.loads(f.read())
+            jsonschema.validate(data, self._schema)
+            self.data = data
         except (IOError, OSError, ValueError, ValidationError):
-            self._dict = None
             logging.error("Error: Could not read '{}'. Traceback follows "
-                          "below:\n".format(path.name))
+                          "below:\n".format(self._path.name))
             raise
 
-    def get(self, *args, **kwargs):
-        return self._dict.get(*args, **kwargs)
+    def __setitem__(self, name, value):
+        self.data[name] = value
+        self._write(self.data)
 
-    def __getitem__(self, name):
-        return self._dict[name]
-
-    def __str__(self):
-        return self._dict.__str__()
-
-    def __repr__(self):
-        return self._dict.__repr__()
+    def _write(self, data):
+        try:
+            with self._path.open("w", encoding="utf-8") as f:
+                json.dump(data, f, ensure_ascii=False,
+                          indent=4, sort_keys=False)
+        except (IOError, OSError):
+            logging.error("Error: Could not write to '{}'. Traceback follows "
+                          "below:\n".format(self._path.name))
+            raise
 
     def manifest(self, version, disttype="local"):
-        config = self._dict
+        config = self.data
         manifest = {
             "name": config["display_name"],
             "package": config["module_name"],
