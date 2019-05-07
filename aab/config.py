@@ -54,7 +54,7 @@ PATH_CONFIG = PATH_ROOT / "addon.json"
 class Config(UserDict):
 
     """
-    Simply dictionary-like interface to the repository config file
+    Simple dictionary-like interface to the repository config file
     """
 
     with (PATH_PACKAGE / "schema.json").open("r", encoding="utf-8") as f:
