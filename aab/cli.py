@@ -148,14 +148,14 @@ def construct_parser():
 def main():
     print(COPYRIGHT_MSG)
 
-    # Checks
-    if not validate_cwd():
-        sys.exit(1)
-
     # Argument parsing
 
     parser = construct_parser()
     args = parser.parse_args()
+    
+    # Checks
+    if not validate_cwd():
+        sys.exit(1)
 
     # Logging
 
