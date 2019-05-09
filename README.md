@@ -1,5 +1,11 @@
 ## Anki Add-on Builder
 
+<a title="License: GNU AGPLv3" href="https://github.com/glutanimate/anki-addon-builder/blob/master/LICENSE"><img  src="https://img.shields.io/badge/license-GNU AGPLv3-green.svg"></a>
+<a href="https://pypi.org/project/aab/"><img src="https://img.shields.io/pypi/v/aab.svg"></a>
+<img src="https://img.shields.io/pypi/status/aab.svg">
+<img src="https://img.shields.io/pypi/dd/aab.svg">
+
+
 An opinionated build tool for Anki add-ons. Used in most of my major Anki projects.
 
 - [Disclaimer](#disclaimer)
@@ -24,11 +30,11 @@ This is still very much a work-in-progress. Neither the API, nor the implementat
 
 `aab` needs to be run in an Anki development environment to work correctly. Please refer to [Anki's documentation](https://github.com/dae/anki/blob/master/README.development) for information on how to set this up.
 
-#### Installing from PyPI
+#### Installing the latest release
 
     pip install aab
 
-#### Installing from master
+#### Installing from the master branch
 
     pip install --upgrade git+https://github.com/glutanimate/anki-addon-builder.git
 
@@ -51,13 +57,33 @@ optional arguments:
     -v, --verbose     Enable verbose output
 ```
 
-An overview of some of the most frequently used actions follows.
-
-#### Building an Add-on for Anki 2.1
-
+Each subcommand also comes with its own help screen, e.g.:
 
 ```
-aab build -d local
+$ aab build -h
+usage: aab build [-h] [-t {anki21,anki20,all}] [-d {local,ankiweb,all}]
+                 [version]
+
+positional arguments:
+  version               Version to build as a git reference (e.g. 'v1.2.0' or
+                        'd338f6405'). Special keywords: 'current' – latest
+                        commit, 'release' – latest tag. Leave empty to build
+                        latest tag.
+
+optional arguments:
+  -h, --help            show this help message and exit
+  -t {anki21,anki20,all}, --target {anki21,anki20,all}
+                        Anki version to build for
+  -d {local,ankiweb,all}, --dist {local,ankiweb,all}
+                        Distribution channel to build for
+```
+
+#### Examples
+
+_Build latest tagged add-on release_
+
+```
+aab build -d local -t anki21 release
 ```
 
 or simply
@@ -66,7 +92,7 @@ or simply
 aab build
 ```
 
-#### Compiling UI files for Anki 2.1
+_Compile Qt UI forms and resources for Anki 2.1_
 
 ```bash
 aab ui -t anki21
