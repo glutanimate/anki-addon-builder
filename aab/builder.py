@@ -44,11 +44,13 @@ import json
 import zipfile
 import logging
 
+from six import text_type as unicode
+
 from . import PATH_DIST, PATH_ROOT
 from .config import Config
 from .git import Git
 from .ui import UIBuilder
-from .utils import purge, unicode, copy_recursively
+from .utils import purge, copy_recursively
 
 _trash_patterns = ["*.pyc", "*.pyo", "__pycache__"]
 

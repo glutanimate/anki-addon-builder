@@ -35,7 +35,7 @@ setup(
     keywords='anki development build-tools',
     packages=["aab"],
     python_requires='>=2.7, !=3.0.*, !=3.1.*, !=3.2.*, !=3.3.*, !=3.4.*, <4',
-    install_requires=["jsonschema", "whichcraft",
+    install_requires=["six", "jsonschema", "whichcraft",
                       "pathlib;python_version<'3.4'"],
     # e.g. $ pip install aab[anki21]
     extras_require={

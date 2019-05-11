@@ -43,10 +43,6 @@ import logging
 
 from . import PATH_ROOT
 
-# Python 2 is needed to support Anki 2.0 development environments
-PY2K = sys.version_info < (3, 0)
-unicode = unicode if PY2K else str  # noqa:F821
-
 def call_shell(command, echo=False, error_exit=True, **kwargs):
     try:
         out = subprocess.check_output(command, shell=True, **kwargs)

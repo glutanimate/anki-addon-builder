@@ -40,7 +40,8 @@ from __future__ import (absolute_import, division,
 import json
 import logging
 from copy import copy
-from collections import UserDict
+
+from six.moves import UserDict
 
 import jsonschema
 from jsonschema.exceptions import ValidationError

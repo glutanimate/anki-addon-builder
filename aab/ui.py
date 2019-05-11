@@ -43,11 +43,12 @@ import re
 from pathlib import Path
 from datetime import datetime
 
+from six import text_type as unicode
 from whichcraft import which
 
 from . import PATH_DIST, __title__, __version__
 from .config import Config
-from .utils import relpath, call_shell, unicode
+from .utils import relpath, call_shell
 
 _template_header = '''\
 # -*- coding: utf-8 -*-

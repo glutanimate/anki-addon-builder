@@ -38,11 +38,12 @@ import sys
 import logging
 import argparse
 
+from six import PY2
+
 from . import PATH_ROOT, COPYRIGHT_MSG, DIST_TYPES
 from .config import Config, PATH_CONFIG
 from .builder import AddonBuilder, clean_repo
 from .ui import UIBuilder
-from .utils import PY2K
 
 
 # Checks
@@ -98,7 +99,7 @@ def clean(args):
 
 def construct_parser():
     parser = argparse.ArgumentParser()
-    if not PY2K:
+    if not PY2:
         parser.set_defaults(func=lambda x: parser.print_usage())
     subparsers = parser.add_subparsers()
 
