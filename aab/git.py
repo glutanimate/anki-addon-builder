@@ -43,16 +43,23 @@ from .utils import call_shell
 
 class Git(object):
 
-    def version(self, commit=False):
+    def parse_version(self, vstring=None):
+        if vstring and vstring not in ("release", "current"):
+            return vstring
+        
         logging.info("Getting Git version info...")
+        
         cmd = "git describe HEAD --tags"
-        if commit is False:
+        if vstring is None or vstring == "release":
             cmd += " --abbrev=0"
+        
         version = call_shell(cmd, error_exit=False)
+        
         if version is False:
             # Perhaps no tag has been set yet. Try to grab commit ID before
             # giving up and exiting
             version = call_shell("git rev-parse --short HEAD")
+        
         return version
 
     def archive(self, version, outdir):

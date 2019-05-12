@@ -67,9 +67,9 @@ class AddonBuilder(object):
     _path_changelog = PATH_DIST / "CHANGELOG.md"
 
     def __init__(self, version=None, callback_archive=None):
-        self._version = self._get_version(version)
+        self._version = Git().parse_version(version)
         if not self._version:
-            logging.error("Error: Version could not be determined from Git")
+            logging.error("Error: Version could not be determined through Git")
             sys.exit(1)
         self._callback_archive = callback_archive
         self._config = Config()
@@ -103,13 +103,6 @@ class AddonBuilder(object):
     def _build_ui(self, target, pyenv):
         logging.info("Building UI...")
         UIBuilder(root=PATH_DIST).build(target=target, pyenv=pyenv)
-
-    def _get_version(self, version):
-        if version is None or version == "release":
-            return Git().version()
-        elif version == "current":
-            return Git().version(commit=True)
-        return version
 
     def _package(self, target, disttype):
         logging.info("Packaging add-on...")
