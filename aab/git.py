@@ -66,9 +66,25 @@ class Git(object):
         logging.info("Exporting Git archive...")
         if not outdir or not version:
             return False
-        cmd = "git archive --format tar {vers} | tar -x -C {outdir}/".format(
-            vers=version, outdir=outdir)
+        if version == "dev":
+            # https://stackoverflow.com/a/12010656
+            cmd = "stash=`git stash create`; git archive --format tar $stash |"
+            cmd += " tar -x -C {outdir}/".format(outdir=outdir)
+        else:
+            cmd = "git archive --format tar {vers} | tar -x -C {outdir}/"\
+                  .format(vers=version, outdir=outdir)
         return call_shell(cmd)
 
     def modtime(self, version):
-        return int(call_shell("git log -1 -s --format=%ct {}".format(version)))
+        if version == "dev":
+            # Get timestamps of uncommitted changes and return the most recent.
+            # https://stackoverflow.com/a/14142413
+            cmd = "git status -s | while read mode file; do echo $(stat -c %Y "
+            cmd += "$file); done"
+            modtimes = call_shell(cmd).splitlines()
+            # https://stackoverflow.com/a/12010656
+            modtimes = [int(modtime) for modtime in modtimes]
+            return max(modtimes)
+        else:
+            return int(call_shell("git log -1 -s --format=%ct {}"
+                                  .format(version)))
