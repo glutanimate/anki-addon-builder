@@ -50,7 +50,7 @@ from . import PATH_DIST, PATH_ROOT
 from .config import Config
 from .git import Git
 from .ui import UIBuilder
-from .utils import purge, copy_recursively
+from .utils import purge, copy_recursively, call_shell
 
 _trash_patterns = ["*.pyc", "*.pyo", "__pycache__"]
 
@@ -68,6 +68,11 @@ class AddonBuilder(object):
 
     def __init__(self, version=None, callback_archive=None):
         self._version = Git().parse_version(version)
+        # git stash create comes up empty when no changes were made since the
+        # last commit. Don't use 'dev' as version in these cases.
+        git_status = call_shell("git status --porcelain")
+        if self._version == "dev" and git_status == "":
+            self._version = Git().parse_version("current")
         if not self._version:
             logging.error("Error: Version could not be determined through Git")
             sys.exit(1)

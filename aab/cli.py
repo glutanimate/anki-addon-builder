@@ -126,7 +126,8 @@ def construct_parser():
     build_group.add_argument(
         "version", nargs="?", help="Version to build as a git reference "
         "(e.g. 'v1.2.0' or 'd338f6405'). "
-        "Special keywords: 'current' – latest commit, 'release' – latest tag. "
+        "Special keywords: 'dev' - working directory, "
+        "'current' – latest commit, 'release' – latest tag. "
         "Leave empty to build latest tag.")
     build_group.set_defaults(func=build)
 
