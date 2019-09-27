@@ -122,6 +122,10 @@ All of the metadata needed by `aab` to work correctly is stored in an `addon.jso
 
 *Anki Add-on Builder* is *Copyright © 2019 [Aristotelis P.](https://glutanimate.com/) (Glutanimate)*
 
+With code contributions by the following awesome people:
+
+- [zjosua](https://github.com/zjosua)
+
 Anki Add-on Builder is free and open-source software. Its source-code is released under the GNU AGPLv3 license, extended by a number of additional terms. For more information please see the [license file](https://github.com/glutanimate/anki-addon-builder/blob/master/LICENSE) that accompanies this program.
 
 This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY. Please see the license file for more details.
