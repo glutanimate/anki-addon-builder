@@ -43,8 +43,7 @@ For instructions on how to set up a development environment for Anki
 please refer to Anki's documentation.
 """
 
-from __future__ import (absolute_import, division,
-                        print_function, unicode_literals)
+from __future__ import absolute_import, division, print_function, unicode_literals
 
 from pathlib import Path
 
@@ -63,8 +62,9 @@ Copyright (C) 2016-2019  {author}  <{homepage}>
 This program comes with ABSOLUTELY NO WARRANTY;
 This is free software, and you are welcome to redistribute it
 under certain conditions; For details please see the LICENSE file.
-""".format(title=__title__, version=__version__, author=__author__,
-           homepage=__homepage__)
+""".format(
+    title=__title__, version=__version__, author=__author__, homepage=__homepage__
+)
 
 # Global variables
 

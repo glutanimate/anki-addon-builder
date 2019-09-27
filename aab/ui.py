@@ -34,8 +34,7 @@
 UI Compilation
 """
 
-from __future__ import (absolute_import, division,
-                        print_function, unicode_literals)
+from __future__ import absolute_import, division, print_function, unicode_literals
 
 import shutil
 import logging
@@ -73,26 +72,24 @@ __all__ = [
 ]\
 """
 
+
 class UIBuilder(object):
 
     _re_munge = re.compile(r"^import .+?_rc(\n)?$", re.MULTILINE)
-    _pyqt_version = {
-        "anki21": "5",
-        "anki20": "4"
-    }
+    _pyqt_version = {"anki21": "5", "anki20": "4"}
     _types = {
         "forms": {
             "pattern": "*.ui",
             "tool": "pyuic",
             "post_build": "_munge_form",
-            "suffix": ""
+            "suffix": "",
         },
         "resources": {
             "pattern": "*.qrc",
             "tool": "pyrcc",
             "post_build": None,
-            "suffix": "_rc"
-        }
+            "suffix": "_rc",
+        },
     }
 
     def __init__(self, root=None):
@@ -100,14 +97,11 @@ class UIBuilder(object):
         self._config = Config()
         gui_path = self._root / "src" / self._config["module_name"] / "gui"
         self._paths = {
-            "forms": {
-                "in": self._root / "designer",
-                "out": gui_path / "forms"
-            },
+            "forms": {"in": self._root / "designer", "out": gui_path / "forms"},
             "resources": {
                 "in": self._root / "resources",
-                "out": gui_path / "resources"
-            }
+                "out": gui_path / "resources",
+            },
         }
         self._format_dict = self._get_format_dict()
 
@@ -118,8 +112,7 @@ class UIBuilder(object):
             path_in = paths["in"]
             path_out = paths["out"] / target
             if not path_in.exists():
-                logging.warning("No Qt %s folder found. Skipping build.",
-                                filetype)
+                logging.warning("No Qt %s folder found. Skipping build.", filetype)
                 continue
             self._build(filetype, path_in, path_out, target, pyenv)
 
@@ -130,20 +123,24 @@ class UIBuilder(object):
 
         # Basic checks
 
-        tool = "{tool}{nr}".format(tool=settings["tool"],
-                                   nr=self._pyqt_version[target])
+        tool = "{tool}{nr}".format(tool=settings["tool"], nr=self._pyqt_version[target])
         if which(tool) is None:
             logging.error("%s not found. Skipping %s build.", tool, tool)
             return False
 
         ui_files = list(path_in.glob(settings["pattern"]))
         if not ui_files:
-            logging.warning("No %s found in %s. Skipping %s build.",
-                            filetype, path_in, tool)
+            logging.warning(
+                "No %s found in %s. Skipping %s build.", filetype, path_in, tool
+            )
             return False
 
-        logging.info("Building files in '%s' to '%s' with '%s'",
-                     relpath(path_in), relpath(path_out), tool)
+        logging.info(
+            "Building files in '%s' to '%s' with '%s'",
+            relpath(path_in),
+            relpath(path_out),
+            tool,
+        )
 
         # Cleanup
 
@@ -161,7 +158,7 @@ class UIBuilder(object):
 
         suffix = settings["suffix"]
         modules = []
-        
+
         env = "" if not pyenv else self._pyenv_prefix(pyenv)
 
         for in_file in ui_files:
@@ -172,10 +169,8 @@ class UIBuilder(object):
             logging.debug("Building element '%s'...", new_stem)
             # Use relative paths to improve readability of form header:
             cmd = "{env} {tool} {in_file} -o {out_file}".format(
-                env=env,
-                tool=tool,
-                in_file=relpath(in_file),
-                out_file=relpath(out_file))
+                env=env, tool=tool, in_file=relpath(in_file), out_file=relpath(out_file)
+            )
             call_shell(cmd)
 
             if post_build:
@@ -191,10 +186,11 @@ class UIBuilder(object):
         return True
 
     def _pyenv_prefix(self, pyenv):
-        return ('''eval "$(pyenv init -)"'''
-                '''&& eval "$(pyenv virtualenv-init -)"'''
-                '''&& pyenv activate {pyenv} > /dev/null 2>&1 &&'''.format(
-                    pyenv=pyenv))
+        return (
+            '''eval "$(pyenv init -)"'''
+            '''&& eval "$(pyenv virtualenv-init -)"'''
+            """&& pyenv activate {pyenv} > /dev/null 2>&1 &&""".format(pyenv=pyenv)
+        )
 
     def _get_format_dict(self):
         config = self._config
@@ -202,8 +198,7 @@ class UIBuilder(object):
         start_year = self._config.get("copyright_start")
         now = datetime.now().year
         if start_year and start_year != now:
-            years = "{start_year}-{now}".format(start_year=start_year,
-                                                now=now)
+            years = "{start_year}-{now}".format(start_year=start_year, now=now)
         else:
             years = "{now}".format(now=now)
 
@@ -238,7 +233,7 @@ class UIBuilder(object):
         return out
 
     def _generate_import_str(self, modules):
-        out = "\n".join('from . import {}'.format(m) for m in modules)
+        out = "\n".join("from . import {}".format(m) for m in modules)
         return out
 
     def _munge_form(self, path):

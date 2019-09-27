@@ -34,8 +34,7 @@
 Project config parser
 """
 
-from __future__ import (absolute_import, division,
-                        print_function, unicode_literals)
+from __future__ import absolute_import, division, print_function, unicode_literals
 
 import json
 import logging
@@ -69,8 +68,10 @@ class Config(UserDict):
             jsonschema.validate(data, self._schema)
             self.data = data
         except (IOError, OSError, ValueError, ValidationError):
-            logging.error("Error: Could not read '{}'. Traceback follows "
-                          "below:\n".format(self._path.name))
+            logging.error(
+                "Error: Could not read '{}'. Traceback follows "
+                "below:\n".format(self._path.name)
+            )
             raise
 
     def __setitem__(self, name, value):
@@ -80,11 +81,12 @@ class Config(UserDict):
     def _write(self, data):
         try:
             with self._path.open("w", encoding="utf-8") as f:
-                json.dump(data, f, ensure_ascii=False,
-                          indent=4, sort_keys=False)
+                json.dump(data, f, ensure_ascii=False, indent=4, sort_keys=False)
         except (IOError, OSError):
-            logging.error("Error: Could not write to '{}'. Traceback follows "
-                          "below:\n".format(self._path.name))
+            logging.error(
+                "Error: Could not write to '{}'. Traceback follows "
+                "below:\n".format(self._path.name)
+            )
             raise
 
     def manifest(self, version, disttype="local"):
@@ -97,7 +99,7 @@ class Config(UserDict):
             "version": version,
             "homepage": config.get("homepage", ""),
             "conflicts": copy(config["conflicts"]),
-            "mod": Git().modtime(version)
+            "mod": Git().modtime(version),
         }
 
         # Update values for distribution type

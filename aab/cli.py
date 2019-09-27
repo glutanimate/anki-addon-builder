@@ -31,8 +31,7 @@
 # Any modifications to this file must keep this entire header intact.
 
 
-from __future__ import (absolute_import, division,
-                        print_function, unicode_literals)
+from __future__ import absolute_import, division, print_function, unicode_literals
 
 import sys
 import logging
@@ -49,12 +48,15 @@ from .ui import UIBuilder
 # Checks
 ##############################################################################
 
+
 def validate_cwd():
     required = (PATH_ROOT / "src", PATH_CONFIG)
     for path in required:
         if not path.exists():
-            print("Error: {dir} not found. Please run this script from "
-                  "the project root.".format(dir=path.name))
+            print(
+                "Error: {dir} not found. Please run this script from "
+                "the project root.".format(dir=path.name)
+            )
             return False
     return True
 
@@ -62,12 +64,13 @@ def validate_cwd():
 # Entry points
 ##############################################################################
 
+
 def build(args):
     targets = [args.target] if args.target != "all" else Config()["targets"]
     dists = [args.dist] if args.dist != "all" else DIST_TYPES
 
     builder = AddonBuilder(version=args.version)
-    
+
     cnt = 1
     total = len(targets) * len(dists)
     for target in targets:
@@ -97,48 +100,63 @@ def clean(args):
 # Argument parsing
 ##############################################################################
 
+
 def construct_parser():
     parser = argparse.ArgumentParser()
     if not PY2:
         parser.set_defaults(func=lambda x: parser.print_usage())
     subparsers = parser.add_subparsers()
 
-    parser.add_argument("-v", "--verbose",
-                        help="Enable verbose output",
-                        required=False, action="store_true")
+    parser.add_argument(
+        "-v",
+        "--verbose",
+        help="Enable verbose output",
+        required=False,
+        action="store_true",
+    )
 
     target_parent = argparse.ArgumentParser(add_help=False)
-    target_parent.add_argument("-t", "--target",
-                               help="Anki version to build for",
-                               type=str, default="anki21",
-                               choices=["anki21", "anki20", "all"])
+    target_parent.add_argument(
+        "-t",
+        "--target",
+        help="Anki version to build for",
+        type=str,
+        default="anki21",
+        choices=["anki21", "anki20", "all"],
+    )
 
     dist_parent = argparse.ArgumentParser(add_help=False)
-    dist_parent.add_argument("-d", "--dist",
-                             help="Distribution channel to build for",
-                             type=str, default="local",
-                             choices=["local", "ankiweb", "all"])
+    dist_parent.add_argument(
+        "-d",
+        "--dist",
+        help="Distribution channel to build for",
+        type=str,
+        default="local",
+        choices=["local", "ankiweb", "all"],
+    )
 
     build_group = subparsers.add_parser(
-        "build", parents=[target_parent, dist_parent],
-        help="Build and package add-on for distribution"
+        "build",
+        parents=[target_parent, dist_parent],
+        help="Build and package add-on for distribution",
     )
     build_group.add_argument(
-        "version", nargs="?", help="Version to build as a git reference "
+        "version",
+        nargs="?",
+        help="Version to build as a git reference "
         "(e.g. 'v1.2.0' or 'd338f6405'). "
         "Special keywords: 'dev' - working directory, "
         "'current' – latest commit, 'release' – latest tag. "
-        "Leave empty to build latest tag.")
+        "Leave empty to build latest tag.",
+    )
     build_group.set_defaults(func=build)
 
     ui_group = subparsers.add_parser(
-        "ui", parents=[target_parent],
-        help="Compile add-on user interface files"
+        "ui", parents=[target_parent], help="Compile add-on user interface files"
     )
     ui_group.set_defaults(func=ui)
 
-    clean_group = subparsers.add_parser(
-        "clean", help="Clean leftover build files")
+    clean_group = subparsers.add_parser("clean", help="Clean leftover build files")
     clean_group.set_defaults(func=clean)
 
     return parser
@@ -147,6 +165,7 @@ def construct_parser():
 # Main
 ##############################################################################
 
+
 def main():
     print(COPYRIGHT_MSG)
 
@@ -154,7 +173,7 @@ def main():
 
     parser = construct_parser()
     args = parser.parse_args()
-    
+
     # Checks
     if not validate_cwd():
         sys.exit(1)
@@ -170,6 +189,7 @@ def main():
 
     # Run
     args.func(args)
+
 
 if __name__ == "__main__":
     main()

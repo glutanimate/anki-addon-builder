@@ -34,14 +34,14 @@
 Utility functions
 """
 
-from __future__ import (absolute_import, division,
-                        print_function, unicode_literals)
+from __future__ import absolute_import, division, print_function, unicode_literals
 
 import sys
 import subprocess
 import logging
 
 from . import PATH_ROOT
+
 
 def call_shell(command, echo=False, error_exit=True, **kwargs):
     try:
@@ -51,8 +51,9 @@ def call_shell(command, echo=False, error_exit=True, **kwargs):
             logging.info(decoded)
         return decoded
     except subprocess.CalledProcessError as e:
-        logging.error("Error while running command: '{command}'".format(
-                      command=command))
+        logging.error(
+            "Error while running command: '{command}'".format(command=command)
+        )
         logging.error(e.output.decode("utf-8"))
         if error_exit:
             sys.exit(1)
@@ -75,15 +76,17 @@ def purge(path, patterns, recursive=False):
     pattern_string = "\( {} \)".format(pattern_string)
     depth = "-maxdepth 1" if not recursive else ""
     cmd = 'find "{path}" {depth} {pattern_string} -delete'.format(
-        path=path, depth=depth, pattern_string=pattern_string)
+        path=path, depth=depth, pattern_string=pattern_string
+    )
     return call_shell(cmd)
 
 
 def copy_recursively(source, target):
     if not source or not target:
         return False
-    return call_shell('cp -r "{source}" "{target}"'.format(
-                      source=source, target=target))
+    return call_shell(
+        'cp -r "{source}" "{target}"'.format(source=source, target=target)
+    )
 
 
 def relpath(path):
