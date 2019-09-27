@@ -8,15 +8,6 @@
 *Please replace the space inside the brackets with an **x** and fill out the ellipses if the following items apply:*
 
 - [ ] I've read and understood the [contribution guidelines](./CONTRIBUTING.md)
-- [ ] I've tested my changes against at least one of the following [Anki builds](https://apps.ankiweb.net/#download):
-  - [ ] Latest standard Anki 2.1 binary build [required for Anki-compatible 2.1 add-ons]
-  - [ ] Latest alternative Anki 2.1 binary build
-  - [ ] Latest Anki 2.0 binary build [required for Anki 2.0-compatible add-ons]
-- [ ] I've tested my changes on at least one of the following platforms:
-  - [ ] Linux, version:
-  - [ ] Windows, version:
-  - [ ] macOS, version: 
-- [ ] My changes potentially affect non-desktop platforms, of which I've tested:
-  - [ ] AnkiMobile, version:
-  - [ ] AnkiDroid, version:
-  - [ ] AnkiWeb
+- [ ] I've tested my changes by building at least one of the [add-ons that use aab](https://github.com/glutanimate/anki-addon-builder/network/dependents?package_id=UGFja2FnZS00MDE1ODkwOTY%3D) for **Anki 2.1**
+- (optional) [ ] I've tested my changes by building at least one of the [add-ons that use aab](https://github.com/glutanimate/anki-addon-builder/network/dependents?package_id=UGFja2FnZS00MDE1ODkwOTY%3D) for **Anki 2.0**
+- [ ] I've tested that the packages produced by my modified branch of aab work with the [latest version of Anki](https://apps.ankiweb.net#download)

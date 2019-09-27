@@ -16,43 +16,23 @@ assignees: ''
 
 *Please replace the space inside the brackets with an **x** if the following items apply:*
 
- - [ ] I've restarted Anki to see if it helps
- - [ ] I've verified that I use the latest version of the add-on by redownloading it from AnkiWeb
- - [ ] I've verified that I use the latest version of Anki by checking at https://apps.ankiweb.net#download
- - [ ] I've tried to disable other add-ons to see if there are any interactions present
- - [ ] My issue disappears when I hold shift while starting Anki.
+ - [ ] I've verified that I use the latest version of aab
  - [ ] I've checked if anyone else reported this problem before by looking through the issue reports. I also checked to see if there is a section about known issues in the add-on description, documentation, or README.
  
 
-#### Information about your Anki set-up
+#### Information about your set-up
 
-*Please fill out the section corresponding with your Anki version:*
-
-
-##### If you are using Anki 2.1
-
-*Please open Anki, go to Help → About, click on "Copy Debug Info", and paste the result between the backticks below (if the button does not appear you are using an older version of Anki 2.1 and will need to update first):*
+Please run `aab -h` and paste the output below:
 
 ```
 
 ```
 
-
-#####  If you are using Anki 2.0
-
-*Please open Anki, go to Help → About, find the two lines starting with `Version:` and `Qt`, and copy-paste them between the backticks below:*
-
-```
-
-```
-
-*Please fill in details about your operating system (Windows/macOS/Linux, which version):*
+*Please fill in details about your operating system and environment:*
 
 - OS:
-- version:
-
-*Please open Anki, go to Tools → Add-ons, take a screenshot of your installed add-ons, and paste it below:*
-
+- Python version:
+- Anki version:
 
 
 #### Error message (if any)
