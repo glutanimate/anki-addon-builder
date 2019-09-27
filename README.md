@@ -116,7 +116,7 @@ For a more detailed look at the entire directory tree please feel free to take a
 
 #### addon.json
 
-All of the metadata needed by `aab` to work correctly is stored in an `addon.json` file at the root of the project tree. For more information on its fields and their specifications please refer to the [schema file](./aab/schema.json).
+All of the metadata needed by `aab` to work correctly is stored in an `addon.json` file at the root of the project tree. For more information on its fields and their specifications please refer to the [schema file](https://github.com/glutanimate/anki-addon-builder/blob/master/aab/schema.json).
 
 ### License and Credits
 
