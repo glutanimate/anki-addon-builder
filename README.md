@@ -92,6 +92,8 @@ or simply
 aab build
 ```
 
+The output artifacts will be, by default, written into `./build/`.
+
 _Compile Qt UI forms and resources for Anki 2.1_
 
 ```bash
