@@ -49,7 +49,7 @@ from . import PATH_DIST, PATH_ROOT
 from .config import Config
 from .git import Git
 from .ui import UIBuilder
-from .utils import purge, copy_recursively, call_shell
+from .utils import purge, copy_recursively, call_shell, check_exists
 
 _trash_patterns = ["*.pyc", "*.pyo", "__pycache__"]
 
@@ -80,6 +80,7 @@ class AddonBuilder(object):
         self._callback_archive = callback_archive
         self._config = Config()
         self._path_dist_module = PATH_DIST / "src" / self._config["module_name"]
+        self._path_locales = self._path_dist_module / "locale"
 
     def build(self, target="anki21", disttype="local", pyenv=None):
 
@@ -103,6 +104,8 @@ class AddonBuilder(object):
             self._copy_optional_icons()
         if self._callback_archive:
             self._callback_archive()
+        if self._path_locales.exists():
+            self._build_locales()
 
         self._write_manifest(disttype)
         self._build_ui(target, pyenv)
@@ -179,3 +182,30 @@ class AddonBuilder(object):
         copy_recursively(
             self._path_optional_icons, PATH_DIST / "resources" / "icons" / ""
         )
+
+    def _build_locales(self):
+        """
+        Tries to compile the '.po' found in the locale directory and replaces them
+        by their compiled '.mo' file (the original file will be deleted in the process.
+
+        Does not do anything if the program 'msgfmt' is not found.
+        """
+        from pipes import quote  # 2.7 compatibility
+
+        logging.info("Compiling locale files...")
+        # check whether 'msgfmt' exists, else abort immediately
+        if not check_exists("msgfmt"):
+            logging.warning("Could not compile. 'msgfmt' not found.")
+            return
+
+        for root, dirs, files in os.walk(unicode(self._path_locales)):
+            for file in files:
+                filename, ext = os.path.splitext(self._path_locales / root / file)
+                # Only compile files ending with '.po' for now
+                if ext == ".po":
+                    call_shell(
+                        "msgfmt {filename}.po -o {filename}.mo".format(
+                            filename=quote(filename)
+                        )
+                    )
+                    os.unlink("{filename}.po".format(filename=filename))

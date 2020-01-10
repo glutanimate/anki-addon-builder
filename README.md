@@ -110,6 +110,7 @@ In order for `aab` to work correctly, your project should generally follow the d
 project root
 ├── src [required] (contains add-on package and Anki 2.0 entry-point)
 │   ├── {module_name} [required] (add-on package)
+│   │   └── locale [optionial] (directory containg '.po' files for localization)
 |   └── {display_name}.py [optional] (Anki 2.0 entry-point)
 └── addon.json [required] (contains add-on meta information read by aab)
 ```
@@ -119,6 +120,10 @@ For a more detailed look at the entire directory tree please feel free to take a
 #### addon.json
 
 All of the metadata needed by `aab` to work correctly is stored in an `addon.json` file at the root of the project tree. For more information on its fields and their specifications please refer to the [schema file](https://github.com/glutanimate/anki-addon-builder/blob/master/aab/schema.json).
+
+#### Localization
+
+`aab` tries to automatically compile `.po` files found in the `locale` directory to `.mo` files for the build. File extensions are case sensitive.  The program `msgfmt` is used for compilation. It must be installed for this feature to work.
 
 ### License and Credits
 
