@@ -80,10 +80,11 @@ class Git(object):
     def modtime(self, version):
         if version == "dev":
             # Get timestamps of uncommitted changes and return the most recent.
-            # https://stackoverflow.com/a/14142413
             cmd = (
-                "git status -s | while read mode file;"
-                " do echo $(stat -c %Y $file); done"
+                # https://stackoverflow.com/a/4210072
+                "find . -type d \( -path ./.git -o -path ./build \) -prune -o "
+                # https://stackoverflow.com/a/7448828
+                "-exec stat --format '%Y' {} \;"
             )
             modtimes = call_shell(cmd).splitlines()
             # https://stackoverflow.com/a/12010656
