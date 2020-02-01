@@ -51,6 +51,8 @@ from .git import Git
 from .ui import UIBuilder
 from .utils import purge, copy_recursively, call_shell
 
+# these patters will be used by a 'find' command and are case sensitive,
+# thus '*', '?', '[]' etc. have a special meaning and maybe must be escaped
 _trash_patterns = ["*.pyc", "*.pyo", "__pycache__"]
 
 
@@ -67,13 +69,21 @@ class AddonBuilder(object):
     _path_optional_icons = PATH_ROOT / "resources" / "icons" / "optional"
     _path_changelog = PATH_DIST / "CHANGELOG.md"
 
-    def __init__(self, version=None, callback_archive=None):
-        self._version = Git().parse_version(version)
+    def __init__(self, version=None, special=None, callback_archive=None):
+        self._version = version
+        self._special = special
+        if special:
+            if version:
+                logging.warning("Warning: A special option is given. Given version name will be ignored!")
+            self._version = Git().parse_version(special)
+        elif not version:
+            self._version = Git().parse_version(version)  # if version is empty
         # git stash create comes up empty when no changes were made since the
         # last commit. Don't use 'dev' as version in these cases.
         git_status = call_shell("git status --porcelain")
-        if self._version == "dev" and git_status == "":
-            self._version = Git().parse_version("current")
+        if self._special == "dev" and git_status == "":
+            self._special = "current"
+            self._version = Git().parse_version(self._special)
         if not self._version:
             logging.error("Error: Version could not be determined through Git")
             sys.exit(1)
@@ -94,7 +104,7 @@ class AddonBuilder(object):
         clean_repo()
 
         PATH_DIST.mkdir(parents=True)
-        Git().archive(self._version, PATH_DIST)
+        Git().archive(self._version, self._special, PATH_DIST)
 
         self._copy_licenses()
         if self._path_changelog.exists():
@@ -151,7 +161,7 @@ class AddonBuilder(object):
 
     def _write_manifest(self, disttype):
         logging.info("Writing manifest...")
-        contents = self._config.manifest(self._version, disttype=disttype)
+        contents = self._config.manifest(self._version, self._special, disttype=disttype)
         path = self._path_dist_module / "manifest.json"
         with path.open("w", encoding="utf-8") as f:
             f.write(

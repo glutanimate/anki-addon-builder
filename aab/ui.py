@@ -47,7 +47,7 @@ from whichcraft import which
 
 from . import PATH_DIST, __title__, __version__
 from .config import Config
-from .utils import relpath, call_shell
+from .utils import relpath, call_shell, quote
 
 _template_header = '''\
 # -*- coding: utf-8 -*-
@@ -168,8 +168,8 @@ class UIBuilder(object):
 
             logging.debug("Building element '%s'...", new_stem)
             # Use relative paths to improve readability of form header:
-            cmd = "{env} {tool} {in_file} -o {out_file}".format(
-                env=env, tool=tool, in_file=relpath(in_file), out_file=relpath(out_file)
+            cmd = "{env} {tool} -o {out_file} {in_file}".format(
+                env=env, tool=quote(tool), in_file=quote(relpath(in_file)), out_file=quote(relpath(out_file))
             )
             call_shell(cmd)
 
@@ -189,7 +189,7 @@ class UIBuilder(object):
         return (
             '''eval "$(pyenv init -)"'''
             '''&& eval "$(pyenv virtualenv-init -)"'''
-            """&& pyenv activate {pyenv} > /dev/null 2>&1 &&""".format(pyenv=pyenv)
+            """&& pyenv activate {pyenv} > /dev/null 2>&1 &&""".format(pyenv=quote(pyenv))
         )
 
     def _get_format_dict(self):

@@ -68,8 +68,15 @@ def validate_cwd():
 def build(args):
     targets = [args.target] if args.target != "all" else Config()["targets"]
     dists = [args.dist] if args.dist != "all" else DIST_TYPES
+    special = None
+    if args.release:
+        special = "release"
+    elif args.current_commit:
+        special = "current"
+    elif args.working_directory:
+        special = "dev"
 
-    builder = AddonBuilder(version=args.version)
+    builder = AddonBuilder(version=args.version, special=special)
 
     cnt = 1
     total = len(targets) * len(dists)
@@ -145,10 +152,32 @@ def construct_parser():
         nargs="?",
         help="Version to build as a git reference "
         "(e.g. 'v1.2.0' or 'd338f6405'). "
-        "Special keywords: 'dev' - working directory, "
-        "'current' – latest commit, 'release' – latest tag. "
-        "Leave empty to build latest tag.",
+        "Special instructions can be given with the mutually "
+        "exclusive '-c', '-w' or '-r' options. "
+        "Leave empty to build latest tag ('-r').",
     )
+
+    build_group_options = build_group.add_mutually_exclusive_group()
+    build_group_options.add_argument(
+        "-c",
+        "--current-commit",
+        action='store_true',
+        help="Build the currently checked out commit."
+    )
+    build_group_options.add_argument(
+        "-w",
+        "--working-directory",
+        action='store_true',
+        help="Build the current working directory without "
+             "the need of a commit. Useful for development."
+    )
+    build_group_options.add_argument(
+        "-r",
+        "--release",
+        action='store_true',
+        help="Build the latest tag."
+    )
+
     build_group.set_defaults(func=build)
 
     ui_group = subparsers.add_parser(

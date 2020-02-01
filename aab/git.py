@@ -37,8 +37,9 @@ Basic Git interface
 from __future__ import absolute_import, division, print_function, unicode_literals
 
 import logging
+import os.path
 
-from .utils import call_shell
+from .utils import call_shell, quote
 
 
 class Git(object):
@@ -61,33 +62,39 @@ class Git(object):
 
         return version
 
-    def archive(self, version, outdir):
+    def archive(self, version, special, outdir):
         logging.info("Exporting Git archive...")
-        if not outdir or not version:
+        if not outdir or not (version or special):
             return False
-        if version == "dev":
+        if special == "dev":
             # https://stackoverflow.com/a/12010656
             cmd = (
                 "stash=`git stash create`; git archive --format tar $stash |"
-                " tar -x -C {outdir}/".format(outdir=outdir)
+                " tar -x -C {outdir}/".format(outdir=quote(outdir))
             )
         else:
-            cmd = "git archive --format tar {vers} | tar -x -C {outdir}/".format(
-                vers=version, outdir=outdir
+            cmd = "git archive --format tar -- {vers} | tar -x -C {outdir}/".format(
+                vers=quote(version), outdir=quote(outdir)
             )
         return call_shell(cmd)
 
-    def modtime(self, version):
-        if version == "dev":
+    def modtime(self, version, special):
+        if special == "dev":
             # Get timestamps of uncommitted changes and return the most recent.
-            # https://stackoverflow.com/a/14142413
             cmd = (
-                "git status -s | while read mode file;"
-                " do echo $(stat -c %Y $file); done"
+                "git status -z"  # -z formats the file names in a parsing friendly way
             )
-            modtimes = call_shell(cmd).splitlines()
-            # https://stackoverflow.com/a/12010656
-            modtimes = [int(modtime) for modtime in modtimes]
-            return max(modtimes)
+            # get all files from git, separate the mode and get the mtime for every file if it exists;
+            # git uses '\0' line endings, thus the last split field is empty;
+            # if a file was moved or copied git uses two lines ('XY to\0from') and we have to discard the second
+            modtimes = []
+            it = iter(call_shell(cmd).split('\0')[0:-1])
+            for x in it:
+                mode, file = x[0:2], x[3:]
+                if 'R' in mode or 'C' in mode:
+                    next(it)  # skip 'from'
+                modtimes.append(file)
+            modtimes[:] = [os.path.getmtime(x) for x in modtimes if os.path.exists(x)]
+            return int(max(modtimes))
         else:
-            return int(call_shell("git log -1 -s --format=%ct {}".format(version)))
+            return int(call_shell("git log -1 --no-patch --format=%ct {}".format(quote(version))))

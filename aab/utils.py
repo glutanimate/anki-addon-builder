@@ -39,6 +39,7 @@ from __future__ import absolute_import, division, print_function, unicode_litera
 import sys
 import subprocess
 import logging
+import pipes
 
 from . import PATH_ROOT
 
@@ -72,11 +73,11 @@ def purge(path, patterns, recursive=False):
     """
     if not path or not patterns:
         return False
-    pattern_string = " -o ".join("-name '{}'".format(p) for p in patterns)
-    pattern_string = "\( {} \)".format(pattern_string)
+    pattern_string = " -o ".join("-name {}".format(quote(p)) for p in patterns)
+    pattern_string = r"\( {} \)".format(pattern_string)
     depth = "-maxdepth 1" if not recursive else ""
-    cmd = 'find "{path}" {depth} {pattern_string} -delete'.format(
-        path=path, depth=depth, pattern_string=pattern_string
+    cmd = 'find {path} {depth} {pattern_string} -delete'.format(
+        path=quote(path), depth=depth, pattern_string=pattern_string
     )
     return call_shell(cmd)
 
@@ -85,8 +86,13 @@ def copy_recursively(source, target):
     if not source or not target:
         return False
     return call_shell(
-        'cp -r "{source}" "{target}"'.format(source=source, target=target)
+        'cp -r -- {source} {target}'.format(source=quote(source), target=quote(target))
     )
+
+
+def quote(s):
+    """Quotes the given argument for use in a shell."""
+    return pipes.quote(str(s))
 
 
 def relpath(path):

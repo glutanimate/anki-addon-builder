@@ -89,7 +89,7 @@ class Config(UserDict):
             )
             raise
 
-    def manifest(self, version, disttype="local"):
+    def manifest(self, version, special, disttype="local"):
         config = self.data
         manifest = {
             "name": config["display_name"],
@@ -99,7 +99,7 @@ class Config(UserDict):
             "version": version,
             "homepage": config.get("homepage", ""),
             "conflicts": copy(config["conflicts"]),
-            "mod": Git().modtime(version),
+            "mod": Git().modtime(version, special),
         }
 
         # Update values for distribution type
