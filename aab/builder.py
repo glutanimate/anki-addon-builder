@@ -44,12 +44,13 @@ import zipfile
 import logging
 
 from six import text_type as unicode
+from whichcraft import which
 
 from . import PATH_DIST, PATH_ROOT
 from .config import Config
 from .git import Git
 from .ui import UIBuilder
-from .utils import purge, copy_recursively, call_shell, check_exists
+from .utils import purge, copy_recursively, call_shell
 
 _trash_patterns = ["*.pyc", "*.pyo", "__pycache__"]
 
@@ -194,8 +195,8 @@ class AddonBuilder(object):
 
         logging.info("Compiling locale files...")
         # check whether 'msgfmt' exists, else abort immediately
-        if not check_exists("msgfmt"):
-            logging.warning("Could not compile. 'msgfmt' not found.")
+        if not which("msgfmt"):
+            logging.warning("Warning: Could not compile. 'msgfmt' not found.")
             return
 
         for root, dirs, files in os.walk(unicode(self._path_locales)):
@@ -209,3 +210,6 @@ class AddonBuilder(object):
                         )
                     )
                     os.unlink("{filename}.po".format(filename=filename))
+                # and remove .pot files completely
+                elif ext == ".pot":
+                    os.unlink("{filename}.pot".format(filename=filename))

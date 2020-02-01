@@ -39,7 +39,6 @@ from __future__ import absolute_import, division, print_function, unicode_litera
 import sys
 import subprocess
 import logging
-import os
 
 from . import PATH_ROOT
 
@@ -59,26 +58,6 @@ def call_shell(command, echo=False, error_exit=True, **kwargs):
         if error_exit:
             sys.exit(1)
         return False
-
-
-def check_exists(program):
-    """ Checks whether there is a program of the given name on the system.
-
-    Args:
-        program {str} -- the program to check for
-
-    Returns:
-        True if the program exists, False otherwise
-    """
-    try:
-        with open(os.devnull, "w") as devnull:  # 2.7 compatibility
-            _ = subprocess.check_output([program.strip()], stderr=devnull)
-    except subprocess.CalledProcessError:  # the command may fail
-        pass
-    except FileNotFoundError:  # raised if command wasn't found
-        return False
-
-    return True
 
 
 def purge(path, patterns, recursive=False):
