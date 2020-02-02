@@ -76,7 +76,7 @@ def purge(path, patterns, recursive=False):
     pattern_string = " -o ".join("-name {}".format(quote(p)) for p in patterns)
     pattern_string = r"\( {} \)".format(pattern_string)
     depth = "-maxdepth 1" if not recursive else ""
-    cmd = 'find {path} {depth} {pattern_string} -delete'.format(
+    cmd = "find {path} {depth} {pattern_string} -delete".format(
         path=quote(path), depth=depth, pattern_string=pattern_string
     )
     return call_shell(cmd)
@@ -86,7 +86,7 @@ def copy_recursively(source, target):
     if not source or not target:
         return False
     return call_shell(
-        'cp -r -- {source} {target}'.format(source=quote(source), target=quote(target))
+        "cp -r -- {source} {target}".format(source=quote(source), target=quote(target))
     )
 
 

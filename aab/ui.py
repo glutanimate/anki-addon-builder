@@ -169,7 +169,10 @@ class UIBuilder(object):
             logging.debug("Building element '%s'...", new_stem)
             # Use relative paths to improve readability of form header:
             cmd = "{env} {tool} -o {out_file} {in_file}".format(
-                env=env, tool=quote(tool), in_file=quote(relpath(in_file)), out_file=quote(relpath(out_file))
+                env=env,
+                tool=quote(tool),
+                in_file=quote(relpath(in_file)),
+                out_file=quote(relpath(out_file)),
             )
             call_shell(cmd)
 
@@ -189,7 +192,9 @@ class UIBuilder(object):
         return (
             '''eval "$(pyenv init -)"'''
             '''&& eval "$(pyenv virtualenv-init -)"'''
-            """&& pyenv activate {pyenv} > /dev/null 2>&1 &&""".format(pyenv=quote(pyenv))
+            """&& pyenv activate {pyenv} > /dev/null 2>&1 &&""".format(
+                pyenv=quote(pyenv)
+            )
         )
 
     def _get_format_dict(self):

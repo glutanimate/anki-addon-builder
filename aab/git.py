@@ -81,20 +81,22 @@ class Git(object):
     def modtime(self, version, special):
         if special == "dev":
             # Get timestamps of uncommitted changes and return the most recent.
-            cmd = (
-                "git status -z"  # -z formats the file names in a parsing friendly way
-            )
+            cmd = "git status -z"  # -z formats the file names in a parsing friendly way
             # get all files from git, separate the mode and get the mtime for every file if it exists;
             # git uses '\0' line endings, thus the last split field is empty;
             # if a file was moved or copied git uses two lines ('XY to\0from') and we have to discard the second
             modtimes = []
-            it = iter(call_shell(cmd).split('\0')[0:-1])
+            it = iter(call_shell(cmd).split("\0")[0:-1])
             for x in it:
                 mode, file = x[0:2], x[3:]
-                if 'R' in mode or 'C' in mode:
+                if "R" in mode or "C" in mode:
                     next(it)  # skip 'from'
                 modtimes.append(file)
             modtimes[:] = [os.path.getmtime(x) for x in modtimes if os.path.exists(x)]
             return int(max(modtimes))
         else:
-            return int(call_shell("git log -1 --no-patch --format=%ct {}".format(quote(version))))
+            return int(
+                call_shell(
+                    "git log -1 --no-patch --format=%ct {}".format(quote(version))
+                )
+            )

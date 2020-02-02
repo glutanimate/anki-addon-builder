@@ -161,21 +161,18 @@ def construct_parser():
     build_group_options.add_argument(
         "-c",
         "--current-commit",
-        action='store_true',
-        help="Build the currently checked out commit."
+        action="store_true",
+        help="Build the currently checked out commit.",
     )
     build_group_options.add_argument(
         "-w",
         "--working-directory",
-        action='store_true',
+        action="store_true",
         help="Build the current working directory without "
-             "the need of a commit. Useful for development."
+        "the need of a commit. Useful for development.",
     )
     build_group_options.add_argument(
-        "-r",
-        "--release",
-        action='store_true',
-        help="Build the latest tag."
+        "-r", "--release", action="store_true", help="Build the latest tag."
     )
 
     build_group.set_defaults(func=build)

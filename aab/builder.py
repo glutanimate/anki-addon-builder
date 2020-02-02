@@ -74,7 +74,9 @@ class AddonBuilder(object):
         self._special = special
         if special:
             if version:
-                logging.warning("Warning: A special option is given. Given version name will be ignored!")
+                logging.warning(
+                    "Warning: A special option is given. Given version name will be ignored!"
+                )
             self._version = Git().parse_version(special)
         elif not version:
             self._version = Git().parse_version(version)  # if version is empty
@@ -161,7 +163,9 @@ class AddonBuilder(object):
 
     def _write_manifest(self, disttype):
         logging.info("Writing manifest...")
-        contents = self._config.manifest(self._version, self._special, disttype=disttype)
+        contents = self._config.manifest(
+            self._version, self._special, disttype=disttype
+        )
         path = self._path_dist_module / "manifest.json"
         with path.open("w", encoding="utf-8") as f:
             f.write(
