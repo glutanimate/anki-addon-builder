@@ -44,7 +44,7 @@ You can get an overview of all supported actions by accessing the built-in help:
 
 ```
 $ aab -h
-usage: aab [-h] [-v] [-s] {build,ui,clean} ...
+usage: aab [-h] [-v] {build,ui,clean} ...
 
 positional arguments:
     {build,ui,clean}
@@ -62,13 +62,14 @@ Each subcommand also comes with its own help screen, e.g.:
 ```
 $ aab build -h
 usage: aab build [-h] [-t {anki21,anki20,all}] [-d {local,ankiweb,all}]
+                 [-c | -w | -r]
                  [version]
 
 positional arguments:
   version               Version to build as a git reference (e.g. 'v1.2.0' or
-                        'd338f6405'). Special keywords: 'current' – latest
-                        commit, 'release' – latest tag. Leave empty to build
-                        latest tag.
+                        'd338f6405'). Special instructions can be given with
+                        the mutually exclusive '-c', '-w' or '-r' options.
+                        Leave empty to build latest tag ('-r').
 
 optional arguments:
   -h, --help            show this help message and exit
@@ -76,6 +77,11 @@ optional arguments:
                         Anki version to build for
   -d {local,ankiweb,all}, --dist {local,ankiweb,all}
                         Distribution channel to build for
+  -c, --current-commit  Build the currently checked out commit.
+  -w, --working-directory
+                        Build the current working directory without the need
+                        of a commit. Useful for development.
+  -r, --release         Build the latest tag.
 ```
 
 #### Examples
@@ -83,7 +89,7 @@ optional arguments:
 _Build latest tagged add-on release_
 
 ```
-aab build -d local -t anki21 release
+aab build -d local -t anki21 --release
 ```
 
 or simply
