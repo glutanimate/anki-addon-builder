@@ -33,16 +33,6 @@
             "items": {
                 "type": "string"
             }
-        },
-        "targets": {
-            "type": "array",
-            "items": {
-                "type": "string",
-                "enum": [
-                    "anki20",
-                    "anki21"
-                ]
-            }
         }
     },
     "required": [
@@ -51,7 +41,6 @@
         "repo_name",
         "ankiweb_id",
         "author",
-        "conflicts",
-        "targets"
+        "conflicts"
     ]
 }

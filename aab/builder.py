@@ -97,12 +97,15 @@ class AddonBuilder(object):
         self._path_locales = self._path_dist_module / "locale"
 
     def build(self, target="anki21", disttype="local", pyenv=None):
+        
+        if target != "anki21":
+            print("'target' option is deprecated. Only Anki 2.1 builds are supported.")
+            target = "anki21"
 
         logging.info(
-            "\n--- Building %s %s for %s/%s ---\n",
+            "\n--- Building %s %s for %s ---\n",
             self._config["display_name"],
             self._version,
-            target,
             disttype,
         )
 
@@ -122,29 +125,24 @@ class AddonBuilder(object):
             self._build_locales()
 
         self._write_manifest(disttype)
-        self._build_ui(target, pyenv)
+        self._build_ui(pyenv)
 
-        return self._package(target, disttype)
+        return self._package(disttype)
 
-    def _build_ui(self, target, pyenv):
+    def _build_ui(self, pyenv):
         logging.info("Building UI...")
-        UIBuilder(root=PATH_DIST).build(target=target, pyenv=pyenv)
+        UIBuilder(root=PATH_DIST).build(pyenv=pyenv)
 
-    def _package(self, target, disttype):
+    def _package(self, disttype):
         logging.info("Packaging add-on...")
         config = self._config
 
-        if target == "anki21":
-            to_zip = self._path_dist_module
-            ext = "ankiaddon"
-        else:
-            to_zip = PATH_DIST / "src"
-            ext = "zip"
+        to_zip = self._path_dist_module
+        ext = "ankiaddon"
 
-        out_name = "{repo_name}-{version}-{target}{dist}.{ext}".format(
+        out_name = "{repo_name}-{version}-{dist}.{ext}".format(
             repo_name=config["repo_name"],
             version=self._version,
-            target=target,
             dist="" if disttype == "local" else "-" + disttype,
             ext=ext,
         )

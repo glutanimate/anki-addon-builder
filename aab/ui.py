@@ -77,17 +77,17 @@ __all__ = [
 class UIBuilder(object):
 
     _re_munge = re.compile(r"^import .+?_rc(\n)?$", re.MULTILINE)
-    _pyqt_version = {"anki21": "5", "anki20": "4"}
+    _pyqt_version = "5"
     _types = {
         "forms": {
             "pattern": "*.ui",
-            "tool": "pyuic",
+            "tool": f"pyuic{_pyqt_version}",
             "post_build": "_munge_form",
             "suffix": "",
         },
         "resources": {
             "pattern": "*.qrc",
-            "tool": "pyrcc",
+            "tool": f"pyrcc{_pyqt_version}",
             "post_build": None,
             "suffix": "_rc",
         },
@@ -107,7 +107,11 @@ class UIBuilder(object):
         self._format_dict = self._get_format_dict()
 
     def build(self, target="anki21", pyenv=None):
-        logging.info("Starting UI build tasks for target %r...", target)
+        if target != "anki21":
+            print("'target' option is deprecated. Only Anki 2.1 builds are supported.")
+            target = "anki21"
+        
+        logging.info("Starting UI build tasks...")
 
         for filetype, paths in self._paths.items():
             path_in = paths["in"]
@@ -124,7 +128,7 @@ class UIBuilder(object):
 
         # Basic checks
 
-        tool = "{tool}{nr}".format(tool=settings["tool"], nr=self._pyqt_version[target])
+        tool = settings["tool"]
         if which(tool) is None:
             logging.error("%s not found. Skipping %s build.", tool, tool)
             return False

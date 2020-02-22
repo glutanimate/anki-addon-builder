@@ -67,7 +67,6 @@ def validate_cwd():
 
 
 def build(args):
-    targets = [args.target] if args.target != "all" else Config()["targets"]
     dists = [args.dist] if args.dist != "all" else DIST_TYPES
     special = None
     if args.release:
@@ -80,25 +79,18 @@ def build(args):
     builder = AddonBuilder(version=args.version, special=special)
 
     cnt = 1
-    total = len(targets) * len(dists)
-    for target in targets:
-        for dist in dists:
-            logging.info("\n=== Build task %s/%s ===", cnt, total)
-            builder.build(target=target, disttype=dist)
-            cnt += 1
+    total = len(dists)
+    for dist in dists:
+        logging.info("\n=== Build task %s/%s ===", cnt, total)
+        builder.build(disttype=dist)
+        cnt += 1
 
 
 def ui(args):
-    targets = [args.target] if args.target != "all" else Config()["targets"]
-
     builder = UIBuilder(root=PATH_ROOT)
 
-    cnt = 1
-    total = len(targets)
-    for target in targets:
-        logging.info("\n=== Build task %s/%s ===\n", cnt, total)
-        builder.build(target=target)
-        cnt += 1
+    logging.info("\n=== Build task 1/1 ===\n")
+    builder.build()
 
 
 def clean(args):
@@ -108,6 +100,10 @@ def clean(args):
 # Argument parsing
 ##############################################################################
 
+class DeprecationAction(argparse.Action):
+    def __call__(self, parser, namespace, values, option_string=None):
+        option_string = ", ".join(f"'{i}'" for i in self.option_strings)
+        print(f"Warning: Arguments {option_string} are deprecated")
 
 def construct_parser():
     parser = argparse.ArgumentParser()
@@ -127,10 +123,8 @@ def construct_parser():
     target_parent.add_argument(
         "-t",
         "--target",
-        help="Anki version to build for",
-        type=str,
-        default="anki21",
-        choices=["anki21", "anki20", "all"],
+        help="DEPRECATED: has no effect",
+        action=DeprecationAction
     )
 
     dist_parent = argparse.ArgumentParser(add_help=False)
