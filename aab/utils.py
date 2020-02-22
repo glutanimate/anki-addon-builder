@@ -35,17 +35,20 @@
 Utility functions
 """
 
-
-
 import logging
 import pipes
 import subprocess
 import sys
+from pathlib import Path
+from typing import Union
 
 from . import PATH_ROOT
+from .types import PATH_OR_STR
 
 
-def call_shell(command, echo=False, error_exit=True, **kwargs):
+def call_shell(
+    command: str, echo: bool = False, error_exit: bool = True, **kwargs
+) -> Union[str, bool]:
     try:
         out = subprocess.check_output(command, shell=True, **kwargs)
         decoded = out.decode("utf-8").strip()
@@ -62,7 +65,7 @@ def call_shell(command, echo=False, error_exit=True, **kwargs):
         return False
 
 
-def purge(path, patterns, recursive=False):
+def purge(path: str, patterns: list, recursive: bool = False):
     """Wrapper for GNU find that deletes files matching pattern
 
     Arguments:
@@ -83,7 +86,7 @@ def purge(path, patterns, recursive=False):
     return call_shell(cmd)
 
 
-def copy_recursively(source, target):
+def copy_recursively(source: str, target: str) -> Union[str, bool]:
     if not source or not target:
         return False
     return call_shell(
@@ -91,10 +94,10 @@ def copy_recursively(source, target):
     )
 
 
-def quote(s):
+def quote(s: PATH_OR_STR) -> str:
     """Quotes the given argument for use in a shell."""
     return pipes.quote(str(s))
 
 
-def relpath(path):
+def relpath(path: Path) -> Path:
     return path.relative_to(PATH_ROOT)

@@ -1,6 +1,4 @@
-#!/usr/bin/env python
 # -*- coding: utf-8 -*-
-
 # Anki Add-on Builder
 #
 # Copyright (C)  2016-2020 Aristotelis P. <https://glutanimate.com/>
@@ -40,6 +38,8 @@ import json
 import logging
 from collections import UserDict
 from copy import copy
+from pathlib import Path
+from typing import Any, Optional
 
 import jsonschema
 from jsonschema.exceptions import ValidationError
@@ -59,7 +59,7 @@ class Config(UserDict):
     with (PATH_PACKAGE / "schema.json").open("r", encoding="utf-8") as f:
         _schema = json.loads(f.read())
 
-    def __init__(self, path=None):
+    def __init__(self, path: Optional[Path] = None):
         self._path = path or PATH_CONFIG
         try:
             with self._path.open(encoding="utf-8") as f:
@@ -73,11 +73,11 @@ class Config(UserDict):
             )
             raise
 
-    def __setitem__(self, name, value):
+    def __setitem__(self, name: str, value: Any):
         self.data[name] = value
         self._write(self.data)
 
-    def _write(self, data):
+    def _write(self, data: dict):
         try:
             with self._path.open("w", encoding="utf-8") as f:
                 json.dump(data, f, ensure_ascii=False, indent=4, sort_keys=False)
@@ -88,7 +88,7 @@ class Config(UserDict):
             )
             raise
 
-    def manifest(self, version, special, disttype="local"):
+    def manifest(self, version: str, special: str, disttype: str = "local") -> dict:
         config = self.data
         manifest = {
             "name": config["display_name"],

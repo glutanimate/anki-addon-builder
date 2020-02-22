@@ -32,11 +32,10 @@
 # Any modifications to this file must keep this entire header intact.
 
 
-
-
 import argparse
 import logging
 import sys
+from argparse import ArgumentParser, Namespace
 
 from . import COPYRIGHT_MSG, DIST_TYPES, PATH_ROOT
 from .builder import AddonBuilder, clean_repo
@@ -63,7 +62,7 @@ def validate_cwd():
 ##############################################################################
 
 
-def build(args):
+def build(args: Namespace):
     dists = [args.dist] if args.dist != "all" else DIST_TYPES
     special = None
     if args.release:
@@ -83,7 +82,7 @@ def build(args):
         cnt += 1
 
 
-def ui(args):
+def ui(args: Namespace):
     builder = UIBuilder(root=PATH_ROOT)
 
     logging.info("\n=== Build task 1/1 ===\n")
@@ -97,12 +96,14 @@ def clean(args):
 # Argument parsing
 ##############################################################################
 
+
 class DeprecationAction(argparse.Action):
     def __call__(self, parser, namespace, values, option_string=None):
         option_string = ", ".join(f"'{i}'" for i in self.option_strings)
         print(f"Warning: Arguments {option_string} are deprecated")
 
-def construct_parser():
+
+def construct_parser() -> ArgumentParser:
     parser = argparse.ArgumentParser()
     parser.set_defaults(func=lambda x: parser.print_usage())
     subparsers = parser.add_subparsers()
@@ -117,10 +118,7 @@ def construct_parser():
 
     target_parent = argparse.ArgumentParser(add_help=False)
     target_parent.add_argument(
-        "-t",
-        "--target",
-        help="DEPRECATED: has no effect",
-        action=DeprecationAction
+        "-t", "--target", help="DEPRECATED: has no effect", action=DeprecationAction
     )
 
     dist_parent = argparse.ArgumentParser(add_help=False)

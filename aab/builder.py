@@ -1,6 +1,5 @@
-#!/usr/bin/env python
 # -*- coding: utf-8 -*-
-
+#
 # Anki Add-on Builder
 #
 # Copyright (C)  2016-2020 Aristotelis P. <https://glutanimate.com/>
@@ -36,15 +35,15 @@ Main Add-on Builder
 """
 
 
-
 import json
 import logging
 import os
 import shutil
 import sys
 import zipfile
-
-from whichcraft import which
+from pathlib import Path
+from shutil import which
+from typing import Callable, Optional
 
 from . import PATH_DIST, PATH_ROOT
 from .config import Config
@@ -64,13 +63,18 @@ def clean_repo():
     purge(".", _trash_patterns, recursive=True)
 
 
-class AddonBuilder(object):
+class AddonBuilder:
 
     _paths_licenses = [PATH_DIST, PATH_DIST / "resources"]
     _path_optional_icons = PATH_ROOT / "resources" / "icons" / "optional"
     _path_changelog = PATH_DIST / "CHANGELOG.md"
 
-    def __init__(self, version=None, special=None, callback_archive=None):
+    def __init__(
+        self,
+        version: Optional[str] = None,
+        special: Optional[str] = None,
+        callback_archive: Callable = None,
+    ):
         self._version = version
         self._special = special
         if special:
@@ -95,8 +99,13 @@ class AddonBuilder(object):
         self._path_dist_module = PATH_DIST / "src" / self._config["module_name"]
         self._path_locales = self._path_dist_module / "locale"
 
-    def build(self, target="anki21", disttype="local", pyenv=None):
-        
+    def build(
+        self,
+        target: str = "anki21",
+        disttype: str = "local",
+        pyenv: Optional[str] = None,
+    ) -> Path:
+
         if target != "anki21":
             print("'target' option is deprecated. Only Anki 2.1 builds are supported.")
             target = "anki21"
@@ -128,11 +137,11 @@ class AddonBuilder(object):
 
         return self._package(disttype)
 
-    def _build_ui(self, pyenv):
+    def _build_ui(self, pyenv: Optional[str]):
         logging.info("Building UI...")
         UIBuilder(root=PATH_DIST).build(pyenv=pyenv)
 
-    def _package(self, disttype):
+    def _package(self, disttype: str) -> Path:
         logging.info("Packaging add-on...")
         config = self._config
 
@@ -163,7 +172,7 @@ class AddonBuilder(object):
 
         return out_path
 
-    def _write_manifest(self, disttype):
+    def _write_manifest(self, disttype: str):
         logging.info("Writing manifest...")
         contents = self._config.manifest(
             self._version, self._special, disttype=disttype
@@ -171,9 +180,7 @@ class AddonBuilder(object):
         path = self._path_dist_module / "manifest.json"
         with path.open("w", encoding="utf-8") as f:
             f.write(
-                str(
-                    json.dumps(contents, indent=4, sort_keys=False, ensure_ascii=False)
-                )
+                str(json.dumps(contents, indent=4, sort_keys=False, ensure_ascii=False))
             )
 
     def _copy_licenses(self):

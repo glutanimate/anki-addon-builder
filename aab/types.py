@@ -1,6 +1,5 @@
-#!/usr/bin/env python
 # -*- coding: utf-8 -*-
-
+#
 # Anki Add-on Builder
 #
 # Copyright (C)  2016-2020 Aristotelis P. <https://glutanimate.com/>
@@ -31,42 +30,7 @@
 #
 # Any modifications to this file must keep this entire header intact.
 
-"""
-Handles build tasks for Anki add-ons, including packaging them
-to be distributed through AnkiWeb or other channels.
-
-This script presupposes that you have a proper development environment
-set up for the Anki version you are targeting, including having tools
-like pyrcc4 and pyuic4 (Anki 2.0) or pyrcc5 and pyuic5 (Anki 2.1) in
-your PATH.
-
-For instructions on how to set up a development environment for Anki
-please refer to Anki's documentation.
-"""
-
-
 from pathlib import Path
+from typing import Union
 
-# Meta
-
-__version__ = "1.0.0-dev.1"
-__author__ = "Aristotelis P. (Glutanimate)"
-__title__ = "Anki Add-on Builder"
-__homepage__ = "https://glutanimate.com"
-
-COPYRIGHT_MSG = f"""\
-{__title__} v{__version__}
-
-Copyright (C) 2016-2019  {__author__}  <{__homepage__}>
-
-This program comes with ABSOLUTELY NO WARRANTY;
-This is free software, and you are welcome to redistribute it
-under certain conditions; For details please see the LICENSE file.
-"""
-
-# Global variables
-
-PATH_ROOT = Path.cwd()
-PATH_DIST = PATH_ROOT / "build" / "dist"
-PATH_PACKAGE = Path(__file__).resolve().parent
-DIST_TYPES = ["local", "ankiweb"]
+PATH_OR_STR = Union[Path, str]

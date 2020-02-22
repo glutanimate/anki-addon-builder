@@ -36,15 +36,16 @@ Basic Git interface
 """
 
 
-
 import logging
 import os.path
+from typing import Optional
 
+from .types import PATH_OR_STR
 from .utils import call_shell, quote
 
 
 class Git(object):
-    def parse_version(self, vstring=None):
+    def parse_version(self, vstring: Optional[str] = None):
         if vstring and vstring not in ("release", "current"):
             return vstring
 
@@ -63,7 +64,9 @@ class Git(object):
 
         return version
 
-    def archive(self, version, special, outdir):
+    def archive(
+        self, version: Optional[str], special: Optional[str], outdir: PATH_OR_STR
+    ):
         logging.info("Exporting Git archive...")
         if not outdir or not (version or special):
             return False
@@ -79,7 +82,7 @@ class Git(object):
             )
         return call_shell(cmd)
 
-    def modtime(self, version, special):
+    def modtime(self, version: str, special: str):
         if special == "dev":
             # Get timestamps of uncommitted changes and return the most recent.
             cmd = "git status -z"  # -z formats the file names in a parsing friendly way
