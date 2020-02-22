@@ -139,7 +139,7 @@ class AddonBuilder(object):
         to_zip = self._path_dist_module
         ext = "ankiaddon"
 
-        out_name = "{repo_name}-{version}-{dist}.{ext}".format(
+        out_name = "{repo_name}-{version}{dist}.{ext}".format(
             repo_name=config["repo_name"],
             version=self._version,
             dist="" if disttype == "local" else "-" + disttype,
