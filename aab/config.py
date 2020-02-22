@@ -36,17 +36,15 @@ Project config parser
 """
 
 
-
 import json
 import logging
-from copy import copy
-
 from collections import UserDict
+from copy import copy
 
 import jsonschema
 from jsonschema.exceptions import ValidationError
 
-from . import PATH_ROOT, PATH_PACKAGE
+from . import PATH_PACKAGE, PATH_ROOT
 from .git import Git
 
 PATH_CONFIG = PATH_ROOT / "addon.json"

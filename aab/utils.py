@@ -37,10 +37,10 @@ Utility functions
 
 
 
-import sys
-import subprocess
 import logging
 import pipes
+import subprocess
+import sys
 
 from . import PATH_ROOT
 

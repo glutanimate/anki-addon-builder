@@ -37,12 +37,12 @@ Main Add-on Builder
 
 
 
-import os
-import sys
-import shutil
 import json
-import zipfile
 import logging
+import os
+import shutil
+import sys
+import zipfile
 
 from whichcraft import which
 
@@ -50,7 +50,7 @@ from . import PATH_DIST, PATH_ROOT
 from .config import Config
 from .git import Git
 from .ui import UIBuilder
-from .utils import purge, copy_recursively, call_shell
+from .utils import call_shell, copy_recursively, purge
 
 # these patters will be used by a 'find' command and are case sensitive,
 # thus '*', '?', '[]' etc. have a special meaning and maybe must be escaped

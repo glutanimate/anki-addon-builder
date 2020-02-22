@@ -34,15 +34,14 @@
 
 
 
-import sys
-import logging
 import argparse
+import logging
+import sys
 
-from . import PATH_ROOT, COPYRIGHT_MSG, DIST_TYPES
-from .config import PATH_CONFIG
+from . import COPYRIGHT_MSG, DIST_TYPES, PATH_ROOT
 from .builder import AddonBuilder, clean_repo
+from .config import PATH_CONFIG
 from .ui import UIBuilder
-
 
 # Checks
 ##############################################################################

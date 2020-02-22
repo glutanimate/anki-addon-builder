@@ -37,17 +37,17 @@ UI Compilation
 
 
 
-import shutil
 import logging
 import re
-from pathlib import Path
+import shutil
 from datetime import datetime
+from pathlib import Path
 
 from whichcraft import which
 
 from . import PATH_DIST, __title__, __version__
 from .config import Config
-from .utils import relpath, call_shell, quote
+from .utils import call_shell, quote, relpath
 
 _template_header = '''\
 # -*- coding: utf-8 -*-
