@@ -35,7 +35,7 @@
 Main Add-on Builder
 """
 
-from __future__ import absolute_import, division, print_function, unicode_literals
+
 
 import os
 import sys
@@ -44,7 +44,6 @@ import json
 import zipfile
 import logging
 
-from six import text_type as unicode
 from whichcraft import which
 
 from . import PATH_DIST, PATH_ROOT
@@ -61,7 +60,7 @@ _trash_patterns = ["*.pyc", "*.pyo", "__pycache__"]
 def clean_repo():
     logging.info("Cleaning repository...")
     if PATH_DIST.exists():
-        shutil.rmtree(unicode(PATH_DIST))
+        shutil.rmtree(str(PATH_DIST))
     purge(".", _trash_patterns, recursive=True)
 
 
@@ -152,9 +151,9 @@ class AddonBuilder(object):
         if out_path.exists():
             out_path.unlink()
 
-        with zipfile.ZipFile(unicode(out_path), "w", zipfile.ZIP_DEFLATED) as myzip:
-            rootlen = len(unicode(to_zip)) + 1
-            for root, dirs, files in os.walk(unicode(to_zip)):
+        with zipfile.ZipFile(str(out_path), "w", zipfile.ZIP_DEFLATED) as myzip:
+            rootlen = len(str(to_zip)) + 1
+            for root, dirs, files in os.walk(str(to_zip)):
                 for file in files:
                     path = os.path.join(root, file)
                     myzip.write(path, path[rootlen:])
@@ -172,7 +171,7 @@ class AddonBuilder(object):
         path = self._path_dist_module / "manifest.json"
         with path.open("w", encoding="utf-8") as f:
             f.write(
-                unicode(
+                str(
                     json.dumps(contents, indent=4, sort_keys=False, ensure_ascii=False)
                 )
             )
@@ -184,12 +183,12 @@ class AddonBuilder(object):
                 continue
             for file in path.glob("LICENSE*"):
                 target = self._path_dist_module / "{stem}.txt".format(stem=file.stem)
-                shutil.copyfile(unicode(file), unicode(target))
+                shutil.copyfile(str(file), str(target))
 
     def _copy_changelog(self):
         logging.info("Copying changelog...")
         target = self._path_dist_module / "CHANGELOG.md"
-        shutil.copy(unicode(self._path_changelog), unicode(target))
+        shutil.copy(str(self._path_changelog), str(target))
 
     def _copy_optional_icons(self):
         logging.info("Copying additional icons...")
@@ -212,7 +211,7 @@ class AddonBuilder(object):
             logging.warning("Warning: Could not compile. 'msgfmt' not found.")
             return
 
-        for root, dirs, files in os.walk(unicode(self._path_locales)):
+        for root, dirs, files in os.walk(str(self._path_locales)):
             for file in files:
                 filename, ext = os.path.splitext(self._path_locales / root / file)
                 # Only compile files ending with '.po' for now

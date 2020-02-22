@@ -35,7 +35,7 @@
 UI Compilation
 """
 
-from __future__ import absolute_import, division, print_function, unicode_literals
+
 
 import shutil
 import logging
@@ -43,7 +43,6 @@ import re
 from pathlib import Path
 from datetime import datetime
 
-from six import text_type as unicode
 from whichcraft import which
 
 from . import PATH_DIST, __title__, __version__
@@ -113,7 +112,7 @@ class UIBuilder(object):
         
         logging.info("Starting UI build tasks...")
 
-        for filetype, paths in self._paths.items():
+        for filetype, paths in list(self._paths.items()):
             path_in = paths["in"]
             path_out = paths["out"] / target
             if not path_in.exists():
@@ -151,7 +150,7 @@ class UIBuilder(object):
 
         logging.debug("Cleaning up old %s...", filetype)
         if path_out.exists():
-            shutil.rmtree(unicode(path_out))
+            shutil.rmtree(str(path_out))
         path_out.mkdir(parents=True)
 
         # UI build loop

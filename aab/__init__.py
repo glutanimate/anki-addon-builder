@@ -44,7 +44,7 @@ For instructions on how to set up a development environment for Anki
 please refer to Anki's documentation.
 """
 
-from __future__ import absolute_import, division, print_function, unicode_literals
+
 
 from pathlib import Path
 

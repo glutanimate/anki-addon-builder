@@ -32,16 +32,14 @@
 # Any modifications to this file must keep this entire header intact.
 
 
-from __future__ import absolute_import, division, print_function, unicode_literals
+
 
 import sys
 import logging
 import argparse
 
-from six import PY2
-
 from . import PATH_ROOT, COPYRIGHT_MSG, DIST_TYPES
-from .config import Config, PATH_CONFIG
+from .config import PATH_CONFIG
 from .builder import AddonBuilder, clean_repo
 from .ui import UIBuilder
 
@@ -107,8 +105,7 @@ class DeprecationAction(argparse.Action):
 
 def construct_parser():
     parser = argparse.ArgumentParser()
-    if not PY2:
-        parser.set_defaults(func=lambda x: parser.print_usage())
+    parser.set_defaults(func=lambda x: parser.print_usage())
     subparsers = parser.add_subparsers()
 
     parser.add_argument(
