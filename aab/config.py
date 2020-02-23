@@ -143,6 +143,11 @@ class Config(UserDict):
             except KeyError:
                 getter = getattr(self, f"_{manifest_key}", None)
                 value = getter(build_props) if getter else None
+            except AttributeError:
+                value = self.data[manifest_key]
+            except Exception:
+                print("Missing mapping between addon.json and manifest.json")
+                raise
 
             if value:
                 _manifest[manifest_key] = value
