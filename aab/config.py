@@ -69,18 +69,7 @@ class Config(UserDict):
 
     def __init__(self, path: Optional[Path] = None):
         self._path = path or PATH_CONFIG
-
-        try:
-            with self._path.open(encoding="utf-8") as f:
-                data = json.loads(f.read())
-            jsonschema.validate(data, _SCHEMAS["addon"])
-            self.data = data
-        except (IOError, OSError, ValueError, ValidationError):
-            logging.error(
-                "Error: Could not read '{}'. Traceback follows "
-                "below:\n".format(self._path.name)
-            )
-            raise
+        self.data = self.__read()
 
     # Public API
 
@@ -109,6 +98,19 @@ class Config(UserDict):
         self.__write(self.data)
 
     # File system access
+
+    def __read(self) -> dict:
+        try:
+            with self._path.open(encoding="utf-8") as f:
+                data = json.loads(f.read())
+            jsonschema.validate(data, _SCHEMAS["addon"])
+            return data
+        except (IOError, OSError, ValueError, ValidationError):
+            logging.error(
+                "Error: Could not read '{}'. Traceback follows "
+                "below:\n".format(self._path.name)
+            )
+            raise
 
     def __write(self, data: dict):
         try:
