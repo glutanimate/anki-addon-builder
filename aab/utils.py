@@ -86,11 +86,13 @@ def purge(path: str, patterns: list, recursive: bool = False):
     return call_shell(cmd)
 
 
-def copy_recursively(source: str, target: str) -> Union[str, bool]:
+def copy_recursively(source: PATH_OR_STR, target: PATH_OR_STR) -> Union[str, bool]:
     if not source or not target:
         return False
     return call_shell(
-        "cp -r -- {source} {target}".format(source=quote(source), target=quote(target))
+        "cp -r -- {source} {target}".format(
+            source=quote(str(source)), target=quote(str(target))
+        )
     )
 
 
