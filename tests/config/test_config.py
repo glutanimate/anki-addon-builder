@@ -59,7 +59,7 @@ def test_config_validates_schema(datafiles: py.path):
 
 @pytest.mark.datafiles(SAMPLE_CONFIGS_PATH)
 def test_generate_manifest(datafiles: py.path):
-    config_path = Path(datafiles) / "correct" / "basic.json"
+    config_path = Path(datafiles) / "correct" / "full.json"
 
     config = Config(path=config_path)
     
