@@ -2,52 +2,67 @@
   "type": "object",
   "properties": {
     "display_name": {
-      "type": "string"
+      "type": "string",
+      "description": "The name displayed in Anki's UI (e.g. in the add-on list)"
     },
     "module_name": {
-      "type": "string"
+      "type": "string",
+      "description": "The module/package the add-on is imported as, i.e. the name of the add-on folder."
     },
     "repo_name": {
-      "type": "string"
+      "type": "string",
+      "description": "The name of the git repository the add-on is hosted in. Currently only used for build names."
     },
     "local_name_suffix": {
-      "type": "string"
+      "type": "string",
+      "description": "A suffix to the display name to apply when creating builds for non-ankiweb distribution."
     },
     "ankiweb_id": {
-      "type": "string"
+      "type": "string",
+      "description": "The AnkiWeb upload ID."
     },
     "version": {
-      "type": "string"
+      "type": "string",
+      "description": "Add-on version string. Needs to follow semantic versioning guidelines."
     },
     "author": {
-      "type": "string"
+      "type": "string",
+      "description": "The main author/maintainer/publisher of the add-on."
     },
     "contact": {
-      "type": "string"
+      "type": "string",
+      "description": "Contact details to list for the author (e.g. either a website or email)"
     },
     "homepage": {
-      "type": "string"
+      "type": "string",
+      "description": "Homepage of the add-on project (e.g. GitHub repository link)"
     },
     "tags": {
-      "type": "string"
+      "type": "string",
+      "description": "Space-delimited list of tags that characterize the add-on on AnkiWeb."
     },
     "copyright_start": {
-      "type": "number"
+      "type": "number",
+      "description": "Starting year to list for automatically generated copyright headers."
     },
     "conflicts": {
       "type": "array",
       "items": {
         "type": "string"
-      }
+      },
+      "description": "A list of other AnkiWeb add-on IDs or package names that conflict with this add-on."
     },
     "min_anki_version": {
-      "type": "string"
+      "type": "string",
+      "description": "SemVer version string describing the minimum required Anki version to run this add-on."
     },
     "max_anki_version": {
-      "type": "string"
+      "type": "string",
+      "description": "SemVer version string describing the maximum supported Anki version of this add-on"
     },
     "tested_anki_version": {
-      "type": "string"
+      "type": "string",
+      "description": "SemVer version string describing the latest Anki version this add-on was tested on."
     }
   },
   "required": ["display_name", "module_name", "repo_name", "author"]
