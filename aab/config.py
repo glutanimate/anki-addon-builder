@@ -33,38 +33,41 @@
 Project config parser
 """
 
-
 import json
 import logging
 from collections import UserDict
-from copy import copy
 from pathlib import Path
-from typing import Any, Optional
+from typing import Any, Dict, Optional
 
 import jsonschema
 from jsonschema.exceptions import ValidationError
 
 from . import PATH_PACKAGE, PATH_ROOT
-from .git import Git
 
 PATH_CONFIG = PATH_ROOT / "addon.json"
+
+
+_SCHEMAS: Dict[str, dict] = {}
+for schema_name in ("addon", "manifest"):
+    with (PATH_PACKAGE / "schemas" / f"{schema_name}.manifest.json").open(
+        "r", encoding="utf-8"
+    ) as schema_file:
+        _SCHEMAS[schema_name] = json.loads(schema_file.read())
 
 
 class Config(UserDict):
 
     """
-    Simple dictionary-like interface to the repository config file
+    Simple dictionary-like interface to addon.json
     """
-
-    with (PATH_PACKAGE / "schema.json").open("r", encoding="utf-8") as f:
-        _schema = json.loads(f.read())
 
     def __init__(self, path: Optional[Path] = None):
         self._path = path or PATH_CONFIG
+
         try:
             with self._path.open(encoding="utf-8") as f:
                 data = json.loads(f.read())
-            jsonschema.validate(data, self._schema)
+            jsonschema.validate(data, _SCHEMAS["addon"])
             self.data = data
         except (IOError, OSError, ValueError, ValidationError):
             logging.error(
@@ -75,9 +78,9 @@ class Config(UserDict):
 
     def __setitem__(self, name: str, value: Any):
         self.data[name] = value
-        self._write(self.data)
+        self.__write(self.data)
 
-    def _write(self, data: dict):
+    def __write(self, data: dict):
         try:
             with self._path.open("w", encoding="utf-8") as f:
                 json.dump(data, f, ensure_ascii=False, indent=4, sort_keys=False)
@@ -88,26 +91,60 @@ class Config(UserDict):
             )
             raise
 
-    def manifest(self, version: str, special: str, disttype: str = "local") -> dict:
-        config = self.data
-        manifest = {
-            "name": config["display_name"],
-            "package": config["module_name"],
-            "ankiweb_id": config["ankiweb_id"],
-            "author": config["author"],
-            "version": version,
-            "homepage": config.get("homepage", ""),
-            "conflicts": copy(config["conflicts"]),
-            "mod": Git().modtime(version, special),
-        }
+    def __anki_version_to_point_version(self, version: str) -> int:
+        return int(version.split(".")[-1])
 
+    def _name(self, build_props: dict):
+        return self.data["display_name"]
+
+    def _package(self, build_props: dict):
+        # this is inconsistent, but we can't do much else when
+        # ankiweb_id is still unknown (i.e. first upload):
+        if build_props["dist"] == "ankiweb" and self.data["module_name"]:
+            return self.data["ankiweb_id"] or self.data["module_name"]
+
+    def _min_point_version(self, build_props: dict):
+        key = "min_anki_version"
+        if self.data.get(key):
+            return self.__anki_version_to_point_version(self.data[key])
+
+    def _max_point_version(self, build_props: dict) -> Optional[int]:
+        if self.data.get("max_anki_version"):
+            # -version in "max_point_version" specifies a definite max supported version
+            return -1 * self.__anki_version_to_point_version(
+                self.data["max_anki_version"]
+            )
+        elif self.data.get("tested_anki_version"):
+            # +version in "max_point_version" indicates version tested on
+            return self.__anki_version_to_point_version(
+                self.data["tested_anki_version"]
+            )
+        return None
+
+    def _mod(self, build_props: dict):
+        return build_props["mod"]
+
+    def _conflicts(self, build_props: dict):
         # Update values for distribution type
-        if disttype == "local" and config["ankiweb_id"]:
-            manifest["conflicts"].insert(0, config["ankiweb_id"])
-        elif disttype == "ankiweb" and config["module_name"]:
-            manifest["conflicts"].insert(0, config["module_name"])
-            # this is inconsistent, but we can't do much else when
-            # ankiweb_id is still unknown (i.e. first upload):
-            manifest["package"] = config["ankiweb_id"] or config["module_name"]
+        if build_props["dist"] == "local" and self.data["ankiweb_id"]:
+            return self.data["ankiweb_id"] + self.data["conflicts"]
+        elif build_props["dist"] == "ankiweb" and self.data["module_name"]:
+            return self.data["module_name"] + self.data["conflicts"]
 
-        return manifest
+    def _human_version(self, build_props: dict):
+        return self.data.get("version")
+
+    def manifest(self, build_props: dict) -> dict:
+        _manifest: Dict[str, Any] = {}
+
+        for manifest_key in _SCHEMAS["manifest"]["properties"].keys():
+            try:
+                value = self.data[manifest_key]
+            except KeyError:
+                getter = getattr(self, f"_{manifest_key}", None)
+                value = getter(build_props)
+
+            if value is not None:
+                _manifest[manifest_key] = value
+
+        return _manifest

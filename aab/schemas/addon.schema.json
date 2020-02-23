@@ -1,0 +1,58 @@
+{
+  "type": "object",
+  "properties": {
+    "display_name": {
+      "type": "string"
+    },
+    "module_name": {
+      "type": "string"
+    },
+    "repo_name": {
+      "type": "string"
+    },
+    "ankiweb_id": {
+      "type": "string"
+    },
+    "version": {
+      "type": "string"
+    },
+    "author": {
+      "type": "string"
+    },
+    "contact": {
+      "type": "string"
+    },
+    "homepage": {
+      "type": "string"
+    },
+    "tags": {
+      "type": "string"
+    },
+    "copyright_start": {
+      "type": "number"
+    },
+    "conflicts": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    },
+    "min_anki_version": {
+      "type": "string"
+    },
+    "max_anki_version": {
+      "type": "string"
+    },
+    "tested_anki_version": {
+      "type": "string"
+    }
+  },
+  "required": [
+    "display_name",
+    "module_name",
+    "repo_name",
+    "ankiweb_id",
+    "author",
+    "conflicts"
+  ]
+}

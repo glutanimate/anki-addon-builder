@@ -1,0 +1,21 @@
+{
+  "type": "object",
+  "properties": {
+    "package": { "type": "string" },
+    "name": { "type": "string" },
+    "mod": { "type": "number" },
+    "conflicts": {
+      "type": "array",
+      "items": { "type": "string" }
+    },
+    "min_point_version": { "type": "number" },
+    "max_point_version": { "type": "number" },
+    "branch_index": { "type": "number" },
+    "human_version": { "type": "string" },
+    "version": {"type": "string"},
+    "ankiweb_id": { "type": "string" },
+    "author": {"type": "string"},
+    "homepage": {"type": "string"}
+  },
+  "required": ["package", "name"]
+}
