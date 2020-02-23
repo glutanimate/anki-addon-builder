@@ -37,20 +37,21 @@ from jsonschema.exceptions import ValidationError
 
 from aab.config import Config
 
-SAMPLE_CONFIGS_PATH = str(Path(".") / "tests" / "sample-files" / "configs")
+SAMPLE_CONFIGS_PATH = str(Path(".") / "tests" / "test-data" / "configs")
 
 
 @pytest.mark.datafiles(SAMPLE_CONFIGS_PATH)
 def test_config_init(datafiles: py.path):
     correct_configs_path = Path(datafiles) / "correct"
-    
+
     for config_path in correct_configs_path.iterdir():
         assert Config(path=config_path)
+
 
 @pytest.mark.datafiles(SAMPLE_CONFIGS_PATH)
 def test_config_validates_schema(datafiles: py.path):
     incorrect_configs_path = Path(datafiles) / "incorrect"
-    
+
     for config_path in incorrect_configs_path.iterdir():
         with pytest.raises(ValidationError):
             Config(path=config_path)

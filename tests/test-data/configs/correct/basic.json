@@ -1,0 +1,12 @@
+{
+    "display_name": "Sample Add-on",
+    "module_name": "sample_addon",
+    "repo_name": "sample-addon",
+    "ankiweb_id": "",
+    "author": "Glutanimate",
+    "contact": "https://glutanimate.com",
+    "homepage": "",
+    "copyright_start": 2020,
+    "tags": "sample",
+    "conflicts": []
+}
