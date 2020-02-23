@@ -101,7 +101,7 @@ class Config(UserDict):
         # this is inconsistent, but we can't do much else when
         # ankiweb_id is still unknown (i.e. first upload):
         if build_props["dist"] == "ankiweb" and self.data["module_name"]:
-            return self.data["ankiweb_id"] or self.data["module_name"]
+            return self.data.get("ankiweb_id") or self.data["module_name"]
 
     def _min_point_version(self, build_props: dict):
         key = "min_anki_version"
@@ -126,10 +126,10 @@ class Config(UserDict):
 
     def _conflicts(self, build_props: dict):
         # Update values for distribution type
-        if build_props["dist"] == "local" and self.data["ankiweb_id"]:
-            return self.data["ankiweb_id"] + self.data["conflicts"]
+        if build_props["dist"] == "local" and self.data.get("ankiweb_id"):
+            return [self.data["ankiweb_id"]] + self.data.get("conflicts", [])
         elif build_props["dist"] == "ankiweb" and self.data["module_name"]:
-            return self.data["module_name"] + self.data["conflicts"]
+            return [self.data["module_name"]] + self.data.get("conflicts", [])
 
     def _human_version(self, build_props: dict):
         return self.data.get("version")

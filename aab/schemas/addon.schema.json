@@ -47,12 +47,5 @@
       "type": "string"
     }
   },
-  "required": [
-    "display_name",
-    "module_name",
-    "repo_name",
-    "ankiweb_id",
-    "author",
-    "conflicts"
-  ]
+  "required": ["display_name", "module_name", "repo_name", "author"]
 }
