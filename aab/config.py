@@ -144,7 +144,7 @@ class Config(UserDict):
                 getter = getattr(self, f"_{manifest_key}", None)
                 value = getter(build_props) if getter else None
 
-            if value is not None:
+            if value:
                 _manifest[manifest_key] = value
 
         return _manifest
