@@ -39,6 +39,8 @@ from collections import UserDict
 from pathlib import Path
 from typing import Any, Dict, Optional
 
+from packaging.version import Version, InvalidVersion
+
 import jsonschema
 from jsonschema.exceptions import ValidationError
 
@@ -53,6 +55,10 @@ for schema_name in ("addon", "manifest"):
         "r", encoding="utf-8"
     ) as schema_file:
         _SCHEMAS[schema_name] = json.loads(schema_file.read())
+
+
+class ConfigError(Exception):
+    pass
 
 
 class Config(UserDict):
@@ -76,9 +82,33 @@ class Config(UserDict):
             )
             raise
 
+    # Public API
+
+    def manifest(self, build_props: dict) -> dict:
+        _manifest: Dict[str, Any] = {}
+
+        for manifest_key in _SCHEMAS["manifest"]["properties"].keys():
+            try:
+                getter = getattr(self, f"_{manifest_key}", None)
+                value = getter(build_props) if getter else None
+            except AttributeError:
+                value = self.data[manifest_key]
+            except Exception:
+                print("Missing mapping between addon.json and manifest.json")
+                raise
+
+            if value:
+                _manifest[manifest_key] = value
+
+        return _manifest
+
+    # Dictionary interface
+
     def __setitem__(self, name: str, value: Any):
         self.data[name] = value
         self.__write(self.data)
+
+    # File system access
 
     def __write(self, data: dict):
         try:
@@ -91,8 +121,19 @@ class Config(UserDict):
             )
             raise
 
+    # Helper methods
+
     def __anki_version_to_point_version(self, version: str) -> int:
         return int(version.split(".")[-1])
+
+    def __validate_semver(self, version: str) -> bool:
+        try:
+            Version(version)
+        except InvalidVersion:
+            return False
+        return True
+
+    # Manifest value getters
 
     def _name(self, build_props: dict):
         return self.data["display_name"]
@@ -132,24 +173,15 @@ class Config(UserDict):
             return [self.data["module_name"]] + self.data.get("conflicts", [])
 
     def _human_version(self, build_props: dict):
-        return self.data.get("version")
+        return self._version(build_props)
 
-    def manifest(self, build_props: dict) -> dict:
-        _manifest: Dict[str, Any] = {}
+    def _version(self, build_props: dict) -> Optional[str]:
+        version = self.data.get("version")
+        if not version:
+            return None
 
-        for manifest_key in _SCHEMAS["manifest"]["properties"].keys():
-            try:
-                value = self.data[manifest_key]
-            except KeyError:
-                getter = getattr(self, f"_{manifest_key}", None)
-                value = getter(build_props) if getter else None
-            except AttributeError:
-                value = self.data[manifest_key]
-            except Exception:
-                print("Missing mapping between addon.json and manifest.json")
-                raise
-
-            if value:
-                _manifest[manifest_key] = value
-
-        return _manifest
+        if not self.__validate_semver(version):
+            raise ConfigError(
+                f"Version string '{version}' does not conform to semantic versioning"
+            )
+        return self.data["version"]
