@@ -34,10 +34,11 @@ Project config parser
 """
 
 import json
+import copy
 import logging
 from collections import UserDict
 from pathlib import Path
-from typing import Any, Dict, Optional
+from typing import Any, Dict, Optional, List
 
 from packaging.version import Version, InvalidVersion
 
@@ -144,7 +145,7 @@ class Config(UserDict):
         # this is inconsistent, but we can't do much else when
         # ankiweb_id is still unknown (i.e. first upload):
         if build_props["dist"] == "ankiweb" and self.data["module_name"]:
-            return self.data.get("ankiweb_id") or self.data["module_name"]
+            return self.data.get("ankiweb_id") or self.data["module_name"] + "_ankiweb"
 
     def _min_point_version(self, build_props: dict):
         key = "min_anki_version"
@@ -164,15 +165,23 @@ class Config(UserDict):
             )
         return None
 
-    def _mod(self, build_props: dict):
+    def _mod(self, build_props: dict) -> int:
         return build_props["mod"]
 
-    def _conflicts(self, build_props: dict):
+    def _conflicts(self, build_props: dict) -> List[str]:
         # Update values for distribution type
-        if build_props["dist"] == "local" and self.data.get("ankiweb_id"):
-            return [self.data["ankiweb_id"]] + self.data.get("conflicts", [])
-        elif build_props["dist"] == "ankiweb" and self.data["module_name"]:
-            return [self.data["module_name"]] + self.data.get("conflicts", [])
+        conflicts = copy.copy(self.data.get("conflicts", []))
+        self_conflict = None
+        
+        if build_props["dist"] == "local":
+            self_conflict = self.data.get("ankiweb_id")
+        elif build_props["dist"] == "ankiweb":
+            self_conflict = self.data["module_name"]
+
+        if self_conflict:
+            conflicts.insert(0, self_conflict)
+
+        return conflicts
 
     def _human_version(self, build_props: dict):
         return self._version(build_props)
