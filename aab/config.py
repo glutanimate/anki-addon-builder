@@ -49,7 +49,7 @@ PATH_CONFIG = PATH_ROOT / "addon.json"
 
 _SCHEMAS: Dict[str, dict] = {}
 for schema_name in ("addon", "manifest"):
-    with (PATH_PACKAGE / "schemas" / f"{schema_name}.manifest.json").open(
+    with (PATH_PACKAGE / "schemas" / f"{schema_name}.schema.json").open(
         "r", encoding="utf-8"
     ) as schema_file:
         _SCHEMAS[schema_name] = json.loads(schema_file.read())
