@@ -142,7 +142,7 @@ class Config(UserDict):
                 value = self.data[manifest_key]
             except KeyError:
                 getter = getattr(self, f"_{manifest_key}", None)
-                value = getter(build_props)
+                value = getter(build_props) if getter else None
 
             if value is not None:
                 _manifest[manifest_key] = value
