@@ -139,7 +139,10 @@ class Config(UserDict):
     # Manifest value getters
 
     def _name(self, build_props: dict):
-        return self.data["display_name"]
+        name = self.data["display_name"]
+        if self.data.get("local_dist_suffix"):
+            name += self.data["local_name_suffix"]
+        return name
 
     def _package(self, build_props: dict):
         # this is inconsistent, but we can't do much else when
