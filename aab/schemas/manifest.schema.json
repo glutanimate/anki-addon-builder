@@ -1,4 +1,16 @@
 {
+  "meta:license": [
+    "Copyright (C) 2006-2020 Ankitects Pty Ltd and contributors",
+    "Copyright (C) 2016-2020 Aristotelis P. <https://glutanimate.com/> and contributors.",
+    "This program is free software: you can redistribute it and/or modify",
+    "it under the terms of the GNU Affero General Public License as",
+    "published by the Free Software Foundation, either version 3 of the",
+    "License, or (at your option) any later version, with the additions",
+    "listed at the end of the license file that accompanied this program."
+  ],
+  "title": "Extended Anki Add-on Manifest",
+  "description": "Anki's add-on manifest schema, extended by a number of keys custom to aab",
+  "$id": "https://github.com/glutanimate/anki-addon-builder/aab/schemas/manifest.schema.json",
   "type": "object",
   "properties": {
     "package": {
@@ -14,6 +26,7 @@
       "description": "The time the add-on was last modified (unix epoch)"
     },
     "conflicts": {
+      "title": "Conflicting Add-ons",
       "type": "array",
       "items": { "type": "string" },
       "description": "A list of other packages that conflict"
@@ -48,7 +61,7 @@
     },
     "homepage": {
       "type": "string",
-      "description": "Homepage of the add-on project (e.g. GitHub repository link)"
+      "description": "[aab] Homepage of the add-on project (e.g. GitHub repository link)"
     }
   },
   "required": ["package", "name"]

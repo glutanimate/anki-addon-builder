@@ -1,4 +1,15 @@
 {
+  "meta:license": [
+    "Copyright (C) 2016-2020 Aristotelis P. <https://glutanimate.com/> and contributors.",
+    "This program is free software: you can redistribute it and/or modify",
+    "it under the terms of the GNU Affero General Public License as",
+    "published by the Free Software Foundation, either version 3 of the",
+    "License, or (at your option) any later version, with the additions",
+    "listed at the end of the license file that accompanied this program."
+  ],
+  "title": "Anki Add-on Builder Add-on Specification",
+  "description": "JSON schema for the addon.json configuration files used by Anki Add-on Builder",
+  "$id": "https://github.com/glutanimate/anki-addon-builder/aab/schemas/addon.schema.json",
   "type": "object",
   "properties": {
     "display_name": {
@@ -46,6 +57,7 @@
       "description": "Starting year to list for automatically generated copyright headers."
     },
     "conflicts": {
+      "title": "Conflicting Add-ons",
       "type": "array",
       "items": {
         "type": "string"
