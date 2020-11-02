@@ -65,18 +65,20 @@ def validate_cwd():
 ##############################################################################
 
 
-def build(args):
+def build(args, continued=False):
     targets = [args.target] if args.target != "all" else Config()["targets"]
     dists = [args.dist] if args.dist != "all" else DIST_TYPES
 
     builder = AddonBuilder(version=args.version)
+    
+    build_method = builder.build if not continued else builder.build_and_package
 
     cnt = 1
     total = len(targets) * len(dists)
     for target in targets:
         for dist in dists:
             logging.info("\n=== Build task %s/%s ===", cnt, total)
-            builder.build(target=target, disttype=dist)
+            build_method(target=target, disttype=dist)
             cnt += 1
 
 
@@ -91,6 +93,13 @@ def ui(args):
         logging.info("\n=== Build task %s/%s ===\n", cnt, total)
         builder.build(target=target)
         cnt += 1
+
+def prebuild(args):
+    builder = AddonBuilder(version=args.version)
+    builder.prebuild()
+
+def continue_build(args):
+    return build(args, continued=True)
 
 
 def clean(args):
@@ -134,22 +143,39 @@ def construct_parser():
         default="local",
         choices=["local", "ankiweb", "all"],
     )
-
-    build_group = subparsers.add_parser(
-        "build",
-        parents=[target_parent, dist_parent],
-        help="Build and package add-on for distribution",
-    )
-    build_group.add_argument(
+    
+    build_parent = argparse.ArgumentParser(add_help=False)
+    build_parent.add_argument(
         "version",
         nargs="?",
-        help="Version to build as a git reference "
+        help="Version to (pre-)build as a git reference "
         "(e.g. 'v1.2.0' or 'd338f6405'). "
         "Special keywords: 'dev' - working directory, "
         "'current' – latest commit, 'release' – latest tag. "
         "Leave empty to build latest tag.",
     )
+
+    build_group = subparsers.add_parser(
+        "build",
+        parents=[build_parent, target_parent, dist_parent],
+        help="Build and package add-on for distribution",
+    )
     build_group.set_defaults(func=build)
+
+    prebuild_group = subparsers.add_parser(
+        "prebuild",
+        parents=[build_parent, target_parent, dist_parent],
+        help="Prepare source tree for building. Useful for scripting aab.",
+    )
+    prebuild_group.set_defaults(func=prebuild)
+    
+    continue_build_group = subparsers.add_parser(
+        "continue_build",
+        parents=[build_parent, target_parent, dist_parent],
+        help="Build and package add-on for distribution, given a pre-built source tree."
+        " Useful for scripting aab.",
+    )
+    continue_build_group.set_defaults(func=continue_build)
 
     ui_group = subparsers.add_parser(
         "ui", parents=[target_parent], help="Compile add-on user interface files"

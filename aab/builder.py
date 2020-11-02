@@ -82,7 +82,6 @@ class AddonBuilder(object):
         self._path_dist_module = PATH_DIST / "src" / self._config["module_name"]
 
     def build(self, target="anki21", disttype="local", pyenv=None):
-
         logging.info(
             "\n--- Building %s %s for %s/%s ---\n",
             self._config["display_name"],
@@ -91,11 +90,28 @@ class AddonBuilder(object):
             disttype,
         )
 
+        self.prebuild()
+        
+        return self.build_and_package(target=target, disttype=disttype, pyenv=pyenv)
+        
+    def prebuild(self):
+        logging.info(
+            "Preparing source tree for %s %s ...",
+            self._config["display_name"],
+            self._version,
+        )
+
         clean_repo()
 
         PATH_DIST.mkdir(parents=True)
         Git().archive(self._version, PATH_DIST)
 
+    def build_and_package(self, target="anki21", disttype="local", pyenv=None):
+        self._build(target=target, disttype=disttype, pyenv=pyenv)
+
+        return self._package(target, disttype)
+
+    def _build(self, target="anki21", disttype="local", pyenv=None):
         self._copy_licenses()
         if self._path_changelog.exists():
             self._copy_changelog()
@@ -106,8 +122,6 @@ class AddonBuilder(object):
 
         self._write_manifest(disttype)
         self._build_ui(target, pyenv)
-
-        return self._package(target, disttype)
 
     def _build_ui(self, target, pyenv):
         logging.info("Building UI...")
