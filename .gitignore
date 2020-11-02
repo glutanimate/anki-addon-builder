@@ -35,3 +35,4 @@ labels.toml
 # Other
 .bumpversion.cfg
 install.sh
+.pytest_cache/
