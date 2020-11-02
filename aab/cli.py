@@ -62,7 +62,7 @@ def validate_cwd():
 ##############################################################################
 
 
-def build(args: Namespace, continued=False):
+def build(args: Namespace):
     dists = [args.dist] if args.dist != "all" else DIST_TYPES
     special = None
     if args.release:
@@ -73,13 +73,12 @@ def build(args: Namespace, continued=False):
         special = "dev"
 
     builder = AddonBuilder(version=args.version, special=special)
-    build_method = builder.build if not continued else builder.build_and_package
 
     cnt = 1
     total = len(dists)
     for dist in dists:
         logging.info("\n=== Build task %s/%s ===", cnt, total)
-        build_method(disttype=dist)
+        builder.build(disttype=dist)
         cnt += 1
 
 def ui(args: Namespace):
@@ -88,13 +87,35 @@ def ui(args: Namespace):
     logging.info("\n=== Build task 1/1 ===\n")
     builder.build()
 
-def prebuild(args):
+# TODO: Deal with all this repetition once we merge this into develop
+
+def create_dist(args):
     builder = AddonBuilder(version=args.version)
-    builder.prebuild()
+    builder.create_dist()
 
-def continue_build(args):
-    return build(args, continued=True)
+def build_dist(args):
+    dists = [args.dist] if args.dist != "all" else DIST_TYPES
 
+    builder = AddonBuilder(version=args.version)
+
+    cnt = 1
+    total = len(dists)
+    for dist in dists:
+        logging.info("\n=== Build task %s/%s ===", cnt, total)
+        builder.build_dist(disttype=dist)
+        cnt += 1
+
+def package_dist(args):
+    dists = [args.dist] if args.dist != "all" else DIST_TYPES
+
+    builder = AddonBuilder(version=args.version)
+
+    cnt = 1
+    total = len(dists)
+    for dist in dists:
+        logging.info("\n=== Build task %s/%s ===", cnt, total)
+        builder.package_dist(target=target, disttype=dist)
+        cnt += 1
 
 def clean(args):
     return clean_repo()
@@ -174,21 +195,6 @@ def construct_parser() -> ArgumentParser:
         "-r", "--release", action="store_true", help="Build the latest tag."
     )
 
-    prebuild_group = subparsers.add_parser(
-        "prebuild",
-        parents=[build_parent, target_parent, dist_parent],
-        help="Prepare source tree for building. Useful for scripting aab.",
-    )
-    prebuild_group.set_defaults(func=prebuild)
-    
-    continue_build_group = subparsers.add_parser(
-        "continue_build",
-        parents=[build_parent, target_parent, dist_parent],
-        help="Build and package add-on for distribution, given a pre-built source tree."
-        " Useful for scripting aab.",
-    )
-    continue_build_group.set_defaults(func=continue_build)
-
     ui_group = subparsers.add_parser(
         "ui", parents=[target_parent], help="Compile add-on user interface files"
     )
@@ -196,6 +202,37 @@ def construct_parser() -> ArgumentParser:
 
     clean_group = subparsers.add_parser("clean", help="Clean leftover build files")
     clean_group.set_defaults(func=clean)
+
+    create_dist_group = subparsers.add_parser(
+        "create_dist",
+        parents=[build_parent, target_parent, dist_parent],
+        help="Prepare source tree distribution for building under build/dist. "
+        "This is intended to be used in build scripts and should be run before "
+        "`build_dist` and `package_dist`.",
+    )
+    create_dist_group.set_defaults(func=create_dist)
+
+    build_dist_group = subparsers.add_parser(
+        "build_dist",
+        parents=[build_parent, target_parent, dist_parent],
+        help="Build add-on files from prepared source tree under build/dist. "
+        "This step performs all source code post-processing handled by "
+        "aab itself (e.g. building the Qt UI and writing the add-on manifest). "
+        "As with `create_dist` and `package_dist`, this command is meant to be "
+        "used in build scripts where it can provide an avenue for performing "
+        "additional processing ahead of packaging the add-on.",
+    )
+    build_dist_group.set_defaults(func=build_dist)
+
+    package_dist_group = subparsers.add_parser(
+        "package_dist",
+        parents=[build_parent, target_parent, dist_parent],
+        help="Package pre-built distribution of add-on files under build/dist into "
+        "a distributable .ankiaddon package. This is inteded to be used in "
+        "build scripts and called after both `create_dist` and `build_dist` "
+        "have been run.",
+    )
+    package_dist_group.set_defaults(func=package_dist)
 
     return parser
 
