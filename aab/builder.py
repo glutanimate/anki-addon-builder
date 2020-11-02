@@ -117,11 +117,28 @@ class AddonBuilder:
             disttype,
         )
 
+        self.prebuild()
+        
+        return self.build_and_package(target=target, disttype=disttype, pyenv=pyenv)
+        
+    def prebuild(self):
+        logging.info(
+            "Preparing source tree for %s %s ...",
+            self._config["display_name"],
+            self._version,
+        )
+
         clean_repo()
 
         PATH_DIST.mkdir(parents=True)
         Git().archive(self._version, self._special, PATH_DIST)
 
+    def build_and_package(self, target="anki21", disttype="local", pyenv=None):
+        self._build(target=target, disttype=disttype, pyenv=pyenv)
+
+        return self._package(target, disttype)
+
+    def _build(self, target="anki21", disttype="local", pyenv=None):
         self._copy_licenses()
         if self._path_changelog.exists():
             self._copy_changelog()
