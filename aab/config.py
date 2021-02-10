@@ -103,11 +103,20 @@ class Config(UserDict):
         }
 
         # Update values for distribution type
-        if disttype == "local" and config["ankiweb_id"]:
-            manifest["conflicts"].insert(0, config["ankiweb_id"])
-        elif disttype == "ankiweb" and config["module_name"]:
-            manifest["conflicts"].insert(0, config["module_name"])
-            # this is inconsistent, but we can't do much else when
+        if disttype == "local":
+            if (
+                config.get("local_conflicts_with_ankiweb", True)
+                and config["ankiweb_id"]
+            ):
+                manifest["conflicts"].insert(0, config["ankiweb_id"])
+        elif disttype == "ankiweb":
+            if (
+                config.get("ankiweb_conflicts_with_local", True)
+                and config["module_name"]
+            ):
+                manifest["conflicts"].insert(0, config["module_name"])
+            
+            # This is inconsistent, but we can't do much else when
             # ankiweb_id is still unknown (i.e. first upload):
             manifest["package"] = config["ankiweb_id"] or config["module_name"]
 
