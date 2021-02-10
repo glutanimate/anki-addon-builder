@@ -64,6 +64,16 @@
       },
       "description": "A list of other AnkiWeb add-on IDs or package names that conflict with this add-on."
     },
+    "ankiweb_conflicts_with_local": {
+      "type": "boolean",
+      "default": true,
+      "description": "TODO"
+    },
+    "local_conflicts_with_ankiweb": {
+      "type": "boolean",
+      "default": true,
+      "description": "TODO"
+    },
     "min_anki_version": {
       "type": "string",
       "description": "SemVer version string describing the minimum required Anki version to run this add-on."

@@ -175,10 +175,18 @@ class Config(UserDict):
         # Update values for distribution type
         conflicts = copy.copy(self.data.get("conflicts", []))
         self_conflict = None
-        
+
         if build_props["dist"] == "local":
-            self_conflict = self.data.get("ankiweb_id")
+            if self.data.get("local_conflicts_with_ankiweb", True) and self.data.get(
+                "ankiweb_id"
+            ):
+                self_conflict = self.data.get("ankiweb_id")
         elif build_props["dist"] == "ankiweb":
+            if self.data.get("ankiweb_conflicts_with_local", True) and self.data.get(
+                "module_name"
+            ):
+                self_conflict = self.data.get("module_name")
+
             self_conflict = self.data["module_name"]
 
         if self_conflict:
