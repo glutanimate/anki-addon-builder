@@ -42,11 +42,11 @@
       }
     },
     "ankiweb_conflicts_with_local": {
-      "type": "bool",
+      "type": "boolean",
       "default": true
     },
     "local_conflicts_with_ankiweb": {
-      "type": "bool",
+      "type": "boolean",
       "default": true
     }
   },
