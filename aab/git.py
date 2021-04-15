@@ -37,6 +37,7 @@ Basic Git interface
 from __future__ import absolute_import, division, print_function, unicode_literals
 
 import logging
+import sys
 
 from .utils import call_shell
 
@@ -81,10 +82,28 @@ class Git(object):
         if version == "dev":
             # Get timestamps of uncommitted changes and return the most recent.
             # https://stackoverflow.com/a/14142413
-            cmd = (
-                "git status -s | while read mode file;"
-                " do echo $(stat -c %Y $file); done"
-            )
+            if sys.platform.startswith("linux"):
+                cmd = (
+                    "git status -s | while read mode file;"
+                    " do echo $(stat -c %Y $file); done"
+                )
+            elif sys.platform.startswith("darwin"):
+                cmd = (
+                    "git status -s | while read mode file;"
+                    " do echo $mode $(stat -f \"%m\" $file) $file; done|sort"
+                )
+            elif sys.platform.startswith("win32"):
+                cmd = (
+                    "git status -s | while read mode file;"
+                    " do echo $mode $(date --reference=$file"
+                    " +\"%Y-%m-%d %H:%M:%S\") $file; done"
+                )
+            else:
+                raise OSError(
+                    "Getting timestamps of uncommitted changes on your OS"
+                    f" ({sys.platform}) isn't supported."
+                )
+
             modtimes = call_shell(cmd).splitlines()
             # https://stackoverflow.com/a/12010656
             modtimes = [int(modtime) for modtime in modtimes]
