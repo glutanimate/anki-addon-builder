@@ -37,6 +37,7 @@ Basic Git interface
 from __future__ import absolute_import, division, print_function, unicode_literals
 
 import logging
+import re
 import sys
 
 from .utils import call_shell
@@ -104,9 +105,11 @@ class Git(object):
                     f" ({sys.platform}) isn't supported."
                 )
 
-            modtimes = call_shell(cmd).splitlines()
+            # Converting output of the form "M 1618523117 designer/options.ui"
+            # to just the timestamp
             # https://stackoverflow.com/a/12010656
-            modtimes = [int(modtime) for modtime in modtimes]
+            modtimes = [int(re.search(r"[\d]+", output).group())
+                        for output in call_shell(cmd).splitlines()]
             return max(modtimes)
         else:
             return int(call_shell("git log -1 -s --format=%ct {}".format(version)))
