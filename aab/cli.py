@@ -3,7 +3,7 @@
 
 # Anki Add-on Builder
 #
-# Copyright (C)  2016-2019 Aristotelis P. <https://glutanimate.com/>
+# Copyright (C)  2016-2021 Aristotelis P. <https://glutanimate.com/>
 #
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU Affero General Public License as
@@ -43,6 +43,8 @@ from . import PATH_ROOT, COPYRIGHT_MSG, DIST_TYPES
 from .config import Config, PATH_CONFIG
 from .builder import AddonBuilder, clean_repo
 from .ui import UIBuilder
+from .manifest import ManifestUtils
+from .git import Git
 
 
 # Checks
@@ -70,7 +72,7 @@ def build(args):
     dists = [args.dist] if args.dist != "all" else DIST_TYPES
 
     builder = AddonBuilder(version=args.version)
-    
+
     cnt = 1
     total = len(targets) * len(dists)
     for target in targets:
@@ -92,11 +94,32 @@ def ui(args):
         builder.build(target=target)
         cnt += 1
 
+
+def manifest(args):
+    version = Git().parse_version(vstring=args.version)
+    addon_properties = Config()
+
+    dist_type = args.dist
+
+    if args.dist == "all":
+        print("'all' is not supported as a dist_type value when building the manifest.")
+        return False
+
+    ManifestUtils.generate_and_write_manifest(
+        addon_properties=addon_properties,
+        version=version,
+        dist_type=dist_type,
+        target_dir=PATH_ROOT / "src" / addon_properties["module_name"],
+    )
+
+
 # TODO: Deal with all this repetition once we merge this into develop
+
 
 def create_dist(args):
     builder = AddonBuilder(version=args.version)
     builder.create_dist()
+
 
 def build_dist(args):
     targets = [args.target] if args.target != "all" else Config()["targets"]
@@ -112,6 +135,7 @@ def build_dist(args):
             builder.build_dist(target=target, disttype=dist)
             cnt += 1
 
+
 def package_dist(args):
     targets = [args.target] if args.target != "all" else Config()["targets"]
     dists = [args.dist] if args.dist != "all" else DIST_TYPES
@@ -125,6 +149,7 @@ def package_dist(args):
             logging.info("\n=== Build task %s/%s ===", cnt, total)
             builder.package_dist(target=target, disttype=dist)
             cnt += 1
+
 
 def clean(args):
     return clean_repo()
@@ -167,7 +192,7 @@ def construct_parser():
         default="local",
         choices=["local", "ankiweb", "all"],
     )
-    
+
     build_parent = argparse.ArgumentParser(add_help=False)
     build_parent.add_argument(
         "version",
@@ -190,6 +215,13 @@ def construct_parser():
         "ui", parents=[target_parent], help="Compile add-on user interface files"
     )
     ui_group.set_defaults(func=ui)
+
+    manifest_group = subparsers.add_parser(
+        "manifest",
+        parents=[build_parent, dist_parent],
+        help="Generate manifest file from add-on properties in addon.json",
+    )
+    manifest_group.set_defaults(func=manifest)
 
     clean_group = subparsers.add_parser("clean", help="Clean leftover build files")
     clean_group.set_defaults(func=clean)
