@@ -1,57 +1,74 @@
 {
-    "type": "object",
-    "properties": {
-        "display_name": {
-            "type": "string"
-        },
-        "module_name": {
-            "type": "string"
-        },
-        "repo_name": {
-            "type": "string"
-        },
-        "ankiweb_id": {
-            "type": "string"
-        },
-        "author": {
-            "type": "string"
-        },
-        "contact": {
-            "type": "string"
-        },
-        "homepage": {
-            "type": "string"
-        },
-        "tags": {
-            "type": "string"
-        },
-        "copyright_start": {
-            "type": "number"
-        },
-        "conflicts": {
-            "type": "array",
-            "items": {
-                "type": "string"
-            }
-        },
-        "targets": {
-            "type": "array",
-            "items": {
-                "type": "string",
-                "enum": [
-                    "anki20",
-                    "anki21"
-                ]
-            }
-        }
+  "type": "object",
+  "properties": {
+    "display_name": {
+      "type": "string"
     },
-    "required": [
-        "display_name",
-        "module_name",
-        "repo_name",
-        "ankiweb_id",
-        "author",
-        "conflicts",
-        "targets"
-    ]
+    "module_name": {
+      "type": "string"
+    },
+    "repo_name": {
+      "type": "string"
+    },
+    "ankiweb_id": {
+      "type": "string"
+    },
+    "author": {
+      "type": "string"
+    },
+    "contact": {
+      "type": "string"
+    },
+    "homepage": {
+      "type": "string"
+    },
+    "tags": {
+      "type": "string"
+    },
+    "copyright_start": {
+      "type": "number"
+    },
+    "conflicts": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    },
+    "targets": {
+      "type": "array",
+      "items": {
+        "type": "string",
+        "enum": ["anki20", "anki21"]
+      }
+    },
+    "min_anki_version": {
+      "type": "string",
+      "description": "SemVer version string describing the minimum required Anki version to run this add-on."
+    },
+    "max_anki_version": {
+      "type": "string",
+      "description": "SemVer version string describing the maximum supported Anki version of this add-on"
+    },
+    "tested_anki_version": {
+      "type": "string",
+      "description": "SemVer version string describing the latest Anki version this add-on was tested on."
+    },
+    "ankiweb_conflicts_with_local": {
+      "type": "boolean",
+      "default": true
+    },
+    "local_conflicts_with_ankiweb": {
+      "type": "boolean",
+      "default": true
+    }
+  },
+  "required": [
+    "display_name",
+    "module_name",
+    "repo_name",
+    "ankiweb_id",
+    "author",
+    "conflicts",
+    "targets"
+  ]
 }
