@@ -40,7 +40,7 @@ from .git import Git
 DistType = Union[Literal["local"], Literal["ankiweb"]]
 
 
-class ManifestTool:
+class ManifestUtils:
     @classmethod
     def generate_and_write_manifest(
         cls,

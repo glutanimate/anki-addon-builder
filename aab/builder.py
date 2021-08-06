@@ -48,7 +48,7 @@ from six import text_type as unicode
 from . import PATH_DIST, PATH_ROOT
 from .config import Config
 from .git import Git
-from .manifest import ManifestTool
+from .manifest import ManifestUtils
 from .ui import UIBuilder
 from .utils import call_shell, copy_recursively, purge
 
@@ -165,7 +165,7 @@ class AddonBuilder(object):
 
     def _write_manifest(self, disttype):
         logging.info("Writing manifest...")
-        ManifestTool.generate_and_write_manifest(
+        ManifestUtils.generate_and_write_manifest(
             addon_properties=self._config,
             version=self._version,
             dist_type=disttype,
