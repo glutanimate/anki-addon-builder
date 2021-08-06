@@ -221,7 +221,7 @@ def construct_parser():
         parents=[build_parent, dist_parent],
         help="Generate manifest file from add-on properties in addon.json",
     )
-    manifest_group.set_defaults(func=build)
+    manifest_group.set_defaults(func=manifest)
 
     clean_group = subparsers.add_parser("clean", help="Clean leftover build files")
     clean_group.set_defaults(func=clean)
