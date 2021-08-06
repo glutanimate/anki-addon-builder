@@ -38,15 +38,12 @@ from __future__ import absolute_import, division, print_function, unicode_litera
 
 import json
 import logging
-from copy import copy
-from typing import Optional
 
 import jsonschema
 from jsonschema.exceptions import ValidationError
 from six.moves import UserDict
 
 from . import PATH_PACKAGE, PATH_ROOT
-from .git import Git
 
 PATH_CONFIG = PATH_ROOT / "addon.json"
 
@@ -88,67 +85,3 @@ class Config(UserDict):
                 "below:\n".format(self._path.name)
             )
             raise
-
-    def manifest(self, version, disttype="local"):
-        config = self.data
-        manifest = {
-            "name": config["display_name"],
-            "package": config["module_name"],
-            "ankiweb_id": config["ankiweb_id"],
-            "author": config["author"],
-            "version": version,
-            "homepage": config.get("homepage", ""),
-            "conflicts": copy(config["conflicts"]),
-            "mod": Git().modtime(version),
-        }
-
-        # Add version specifiers:
-
-        min_anki_version = config.get("min_anki_version")
-        max_anki_version = config.get("max_anki_version")
-        tested_anki_version = config.get("tested_anki_version")
-
-        if min_anki_version:
-            manifest["min_point_version"] = self._min_point_version(min_anki_version)
-
-        if max_anki_version or tested_anki_version:
-            manifest["max_point_version"] = self._max_point_version(
-                max_anki_version, tested_anki_version
-            )
-
-        # Update values for distribution type
-        if disttype == "local":
-            if (
-                config.get("local_conflicts_with_ankiweb", True)
-                and config["ankiweb_id"]
-            ):
-                manifest["conflicts"].insert(0, config["ankiweb_id"])
-        elif disttype == "ankiweb":
-            if (
-                config.get("ankiweb_conflicts_with_local", True)
-                and config["module_name"]
-            ):
-                manifest["conflicts"].insert(0, config["module_name"])
-
-            # This is inconsistent, but we can't do much else when
-            # ankiweb_id is still unknown (i.e. first upload):
-            manifest["package"] = config["ankiweb_id"] or config["module_name"]
-
-        return manifest
-
-    def _anki_version_to_point_version(self, version: str) -> int:
-        return int(version.split(".")[-1])
-
-    def _min_point_version(self, min_anki_version: str) -> int:
-        return self._anki_version_to_point_version(min_anki_version)
-
-    def _max_point_version(
-        self, max_anki_version: Optional[str], tested_anki_version: Optional[str]
-    ) -> Optional[int]:
-        if max_anki_version:
-            # -version in "max_point_version" specifies a definite max supported version
-            return -1 * self._anki_version_to_point_version(max_anki_version)
-        elif tested_anki_version:
-            # +version in "max_point_version" indicates version tested on
-            return self._anki_version_to_point_version(tested_anki_version)
-        return None

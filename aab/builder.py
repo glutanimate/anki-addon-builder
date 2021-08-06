@@ -34,22 +34,23 @@
 Main Add-on Builder
 """
 
-from __future__ import absolute_import, division, print_function, unicode_literals
+from __future__ import (absolute_import, division, print_function,
+                        unicode_literals)
 
-import os
-import sys
-import shutil
-import json
-import zipfile
 import logging
+import os
+import shutil
+import sys
+import zipfile
 
 from six import text_type as unicode
 
 from . import PATH_DIST, PATH_ROOT
 from .config import Config
 from .git import Git
+from .manifest import ManifestTool
 from .ui import UIBuilder
-from .utils import purge, copy_recursively, call_shell
+from .utils import call_shell, copy_recursively, purge
 
 _trash_patterns = ["*.pyc", "*.pyo", "__pycache__"]
 
@@ -164,14 +165,12 @@ class AddonBuilder(object):
 
     def _write_manifest(self, disttype):
         logging.info("Writing manifest...")
-        contents = self._config.manifest(self._version, disttype=disttype)
-        path = self._path_dist_module / "manifest.json"
-        with path.open("w", encoding="utf-8") as f:
-            f.write(
-                unicode(
-                    json.dumps(contents, indent=4, sort_keys=False, ensure_ascii=False)
-                )
-            )
+        ManifestTool.generate_and_write_manifest(
+            addon_properties=self._config,
+            version=self._version,
+            dist_type=disttype,
+            target_dir=self._path_dist_module,
+        )
 
     def _copy_licenses(self):
         logging.info("Copying licenses...")
