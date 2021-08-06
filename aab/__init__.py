@@ -3,7 +3,7 @@
 
 # Anki Add-on Builder
 #
-# Copyright (C)  2016-2019 Aristotelis P. <https://glutanimate.com/>
+# Copyright (C)  2016-2021 Aristotelis P. <https://glutanimate.com/>
 #
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU Affero General Public License as
@@ -57,7 +57,7 @@ __homepage__ = "https://glutanimate.com"
 COPYRIGHT_MSG = """\
 {title} v{version}
 
-Copyright (C) 2016-2020  {author}  <{homepage}>
+Copyright (C) 2016-2021  {author}  <{homepage}>
 
 This program comes with ABSOLUTELY NO WARRANTY;
 This is free software, and you are welcome to redistribute it
