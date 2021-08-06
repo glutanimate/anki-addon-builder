@@ -30,6 +30,7 @@
 # Any modifications to this file must keep this entire header intact.
 
 import json
+import logging
 from copy import deepcopy
 from pathlib import Path
 from typing import Any, Dict, Literal, Optional, Union
@@ -49,6 +50,7 @@ class ManifestUtils:
         dist_type: DistType,
         target_dir: Path,
     ):
+        logging.info("Writing manifest...")
         manifest = cls.generate_manifest_from_properties(
             addon_properties=addon_properties, version=version, dist_type=dist_type
         )

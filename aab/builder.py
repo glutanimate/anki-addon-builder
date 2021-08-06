@@ -164,7 +164,6 @@ class AddonBuilder(object):
         return out_path
 
     def _write_manifest(self, disttype):
-        logging.info("Writing manifest...")
         ManifestUtils.generate_and_write_manifest(
             addon_properties=self._config,
             version=self._version,
