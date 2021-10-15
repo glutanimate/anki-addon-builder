@@ -6,7 +6,7 @@
 <img src="https://img.shields.io/pypi/dd/aab.svg">
 
 
-An opinionated build tool for Anki add-ons. Used in most of my major Anki projects.
+An opinionated development tool for managing, building, and packaging Anki add-ons. Used in most of my major Anki projects.
 
 - [Disclaimer](#disclaimer)
 - [Installation](#installation)
@@ -18,25 +18,51 @@ An opinionated build tool for Anki add-ons. Used in most of my major Anki projec
 
 #### Project State
 
-This is still very much a work-in-progress. Neither the API, nor the implementation are set in stone. At this point the project's main purpose lies in replacing the variety of different build scripts I am employing across all of my add-ons, making the build chain more standardized and maintainable.
+**Important**: Parts of the project are currently undergoing a major restructuring. Parts of the documentation below might no longer be up-to-date for `main`. For use in production, make sure to install a tagged release and not from source.
+
 
 #### Platform Support
 
-`aab` has only been tested on Linux so far, but it might also work on other POSIX-compliant environments like macOS.
+`aab` has only only been confirmed to work on macOS and Linux so far.
 
 ### Installation
 
 #### Requirements
 
-`aab` needs to be run in an Anki development environment to work correctly. Please refer to [Anki's documentation](https://github.com/dae/anki/blob/master/README.development) for information on how to set this up.
+`aab` requires Python 3.8+.
 
-#### Installing the latest release
+#### Installing the latest packaged build
 
-    pip install aab
+*If your add-on does not use Qt Designer forms*:
 
-#### Installing from the master branch
+```bash
+$ pip install aab
+```
 
-    pip install --upgrade git+https://github.com/glutanimate/anki-addon-builder.git
+or
+
+```bash
+$ poetry add --dev aab
+```
+
+*If your add-on does use Qt Designer forms*:
+
+You will need to have `PyQt` installed for `aab` to compile and manage Qt designer forms. By default `aab` will use whatever `PyQt` version is available in the environment it runs in. Should you not have `PyQt` installed, then you can install it alongside `aab` using:
+
+
+```bash
+$ pip install aab[qt5,qt6]
+```
+
+or
+
+```bash
+$ poetry add --dev aab --extras "qt5 qt6"
+```
+
+This will install both `PyQt5` and `PyQt6`.
+
+Depending on the Anki builds you are targeting, you might only need one of them (`PyQt5` on Anki ≈2.1.50 and lower, `PyQt6` on anything higher). If both `Qt` versions are installed, `aab` will simultaneously compile `PyQt5` and `PyQt6` forms, wrapping them in a version-agnostic shim. Add-on builds created in that manner will work on a wider range of Anki releases.
 
 ### Usage
 
@@ -133,12 +159,8 @@ All of the metadata needed by `aab` to work correctly is stored in an `addon.jso
 
 ### License and Credits
 
-*Anki Add-on Builder* is *Copyright © 2019 [Aristotelis P.](https://glutanimate.com/) (Glutanimate)*
+*Anki Add-on Builder* is *Copyright © 2019-2021 [Aristotelis P.](https://glutanimate.com/) (Glutanimate)* and [contributors](./CONTRIBUTORS).
 
-With code contributions by the following awesome people:
-
-- [zjosua](https://github.com/zjosua)
-
-Anki Add-on Builder is free and open-source software. Its source-code is released under the GNU AGPLv3 license, extended by a number of additional terms. For more information please see the [license file](https://github.com/glutanimate/anki-addon-builder/blob/master/LICENSE) that accompanies this program.
+*Anki Add-on Builder* is free and open-source software. Its source-code is released under the GNU AGPLv3 license, extended by a number of additional terms. For more information please see the [license file](https://github.com/glutanimate/anki-addon-builder/blob/master/LICENSE) that accompanies this program.
 
 This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY. Please see the license file for more details.
