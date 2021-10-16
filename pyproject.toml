@@ -37,6 +37,8 @@ PyQt5 = "^5.15.4"
 PyQt6 = "^6.2.0"
 pytest = "^6.2.5"
 pytest-datafiles = "^2.0"
+autoflake = "^1.4"
+isort = "^5.9.3"
 
 [tool.poetry.extras]
 qt5 = ["PyQt5"]
