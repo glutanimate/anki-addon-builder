@@ -37,8 +37,8 @@ PyQt5 = "^5.15.4"
 PyQt6 = "^6.2.0"
 
 [tool.poetry.extras]
-qt5 = "PyQt5"
-qt6 = "PyQt6"
+qt5 = ["PyQt5"]
+qt6 = ["PyQt6"]
 
 [build-system]
 requires = ["poetry-core>=1.0.0"]
