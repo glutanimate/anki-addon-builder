@@ -31,6 +31,7 @@ aab = 'aab.cli:main'
 [tool.poetry.dependencies]
 python = "^3.8"
 jsonschema = "^4.1.0"
+pydantic = "^1.8.2"
 
 [tool.poetry.dev-dependencies]
 PyQt5 = "^5.15.4"
@@ -42,6 +43,7 @@ isort = "^5.9.3"
 mypy = "^0.910"
 flake8 = "^4.0.1"
 black = "^21.9b0"
+datamodel-code-generator = "^0.11.14"
 
 [tool.poetry.extras]
 qt5 = ["PyQt5"]
@@ -60,6 +62,7 @@ exclude = "tests/test-data/"
 
 [tool.black]
 exclude = "tests/test-data/"
+experimental-string-processing = true
 
 [tool.isort]
 multi_line_output = 3
