@@ -1,8 +1,8 @@
 # -*- coding: utf-8 -*-
+
 # Anki Add-on Builder
 #
-# Copyright (C)  2016-2020 Aristotelis P. <https://glutanimate.com/>
-#                and contributors
+# Copyright (C)  2016-2021 Aristotelis P. <https://glutanimate.com/>
 #
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU Affero General Public License as
@@ -29,25 +29,118 @@
 #
 # Any modifications to this file must keep this entire header intact.
 
-"""
-Project config parser
-"""
-
 import json
-import copy
 import logging
-from collections import UserDict
+from copy import deepcopy
 from pathlib import Path
-from typing import Any, Dict, Optional, List
+from typing import Any, Dict, Literal, Optional, Union
 
-from packaging.version import Version, InvalidVersion
+from .config import Config
+from .git import Git
 
-import jsonschema
-from jsonschema.exceptions import ValidationError
+DistType = Union[Literal["local"], Literal["ankiweb"]]
 
-from . import PATH_PACKAGE, PATH_ROOT
 
-PATH_CONFIG = PATH_ROOT / "addon.json"
+class ManifestUtils:
+    @classmethod
+    def generate_and_write_manifest(
+        cls,
+        addon_properties: Config,
+        version: str,
+        dist_type: DistType,
+        target_dir: Path,
+    ):
+        logging.info("Writing manifest...")
+        manifest = cls.generate_manifest_from_properties(
+            addon_properties=addon_properties, version=version, dist_type=dist_type
+        )
+        cls.write_manifest(manifest=manifest, target_dir=target_dir)
+
+    @classmethod
+    def generate_manifest_from_properties(
+        cls,
+        addon_properties: Config,
+        version: str,
+        dist_type: DistType,
+    ) -> Dict[str, Any]:
+        manifest = {
+            "name": addon_properties["display_name"],
+            "package": addon_properties["module_name"],
+            "ankiweb_id": addon_properties["ankiweb_id"],
+            "author": addon_properties["author"],
+            "version": version,
+            "homepage": addon_properties.get("homepage", ""),
+            "conflicts": deepcopy(addon_properties["conflicts"]),
+            "mod": Git().modtime(version),
+        }
+
+        # Add version specifiers:
+
+        min_anki_version = addon_properties.get("min_anki_version")
+        max_anki_version = addon_properties.get("max_anki_version")
+        tested_anki_version = addon_properties.get("tested_anki_version")
+
+        if min_anki_version:
+            manifest["min_point_version"] = cls._min_point_version(min_anki_version)
+
+        if max_anki_version or tested_anki_version:
+            manifest["max_point_version"] = cls._max_point_version(
+                max_anki_version, tested_anki_version
+            )
+
+        # Update values for distribution type
+        if dist_type == "local":
+            if (
+                addon_properties.get("local_conflicts_with_ankiweb", True)
+                and addon_properties["ankiweb_id"]
+            ):
+                manifest["conflicts"].insert(0, addon_properties["ankiweb_id"])
+        elif dist_type == "ankiweb":
+            if (
+                addon_properties.get("ankiweb_conflicts_with_local", True)
+                and addon_properties["module_name"]
+            ):
+                manifest["conflicts"].insert(0, addon_properties["module_name"])
+
+            # This is inconsistent, but we can't do much else when
+            # ankiweb_id is still unknown (i.e. first upload):
+            manifest["package"] = (
+                addon_properties["ankiweb_id"] or addon_properties["module_name"]
+            )
+
+        return manifest
+
+    @classmethod
+    def write_manifest(cls, manifest: Dict[str, Any], target_dir: Path):
+        target_path = target_dir / "manifest.json"
+        with target_path.open("w", encoding="utf-8") as manifest_file:
+            manifest_file.write(
+                json.dumps(manifest, indent=4, sort_keys=False, ensure_ascii=False)
+            )
+
+    @classmethod
+    def _anki_version_to_point_version(cls, version: str) -> int:
+        return int(version.split(".")[-1])
+
+    @classmethod
+    def _min_point_version(cls, min_anki_version: str) -> int:
+        return cls._anki_version_to_point_version(min_anki_version)
+
+    @classmethod
+    def _max_point_version(
+        cls, max_anki_version: Optional[str], tested_anki_version: Optional[str]
+    ) -> Optional[int]:
+        if max_anki_version:
+            # -version in "max_point_version" specifies a definite max supported version
+            return -1 * cls._anki_version_to_point_version(max_anki_version)
+        elif tested_anki_version:
+            # +version in "max_point_version" indicates version tested on
+            return cls._anki_version_to_point_version(tested_anki_version)
+        return None
+
+
+####
+
 
 
 _SCHEMAS: Dict[str, dict] = {}
@@ -108,8 +201,9 @@ class Config(UserDict):
             return data
         except (IOError, OSError, ValueError, ValidationError):
             logging.error(
-                "Error: Could not read '{}'. Traceback follows "
-                "below:\n".format(self._path.name)
+                "Error: Could not read '{}'. Traceback follows below:\n".format(
+                    self._path.name
+                )
             )
             raise
 
@@ -119,8 +213,9 @@ class Config(UserDict):
                 json.dump(data, f, ensure_ascii=False, indent=4, sort_keys=False)
         except (IOError, OSError):
             logging.error(
-                "Error: Could not write to '{}'. Traceback follows "
-                "below:\n".format(self._path.name)
+                "Error: Could not write to '{}'. Traceback follows below:\n".format(
+                    self._path.name
+                )
             )
             raise
 
