@@ -35,12 +35,10 @@ import json
 import time
 from copy import deepcopy
 from pathlib import Path
-from typing import Literal, Optional, Type, Union
-
-DistType = Union[Literal["local"], Literal["ankiweb"]]
-
+from typing import Optional, Type
 
 from ..project.model import AddonProperties
+from ..shared.types import Distribution
 from .model import AddonManifest, ExtendedAddonManifest
 
 
@@ -52,11 +50,11 @@ class ManifestService:
         self,
         properties: AddonProperties,
         version: str,
-        distribution_type: DistType,
+        distribution: Distribution,
         target_directory: Path,
     ):
         manifest = self._manifest_factory.manifest(
-            properties=properties, version=version, distribution_type=distribution_type
+            properties=properties, version=version, distribution=distribution
         )
         self._write_manifest(manifest, target_directory)
 
@@ -76,7 +74,7 @@ class ManifestService:
 class ManifestGenerator:
     @classmethod
     def manifest(
-        cls, properties: AddonProperties, version: str, distribution_type: DistType
+        cls, properties: AddonProperties, version: str, distribution: Distribution
     ) -> ExtendedAddonManifest:
         max_point_version = (
             cls._max_point_version(
@@ -94,14 +92,14 @@ class ManifestGenerator:
         )
 
         manifest = ExtendedAddonManifest(
-            package=cls._package(properties, distribution_type),
-            name=cls._name(properties, distribution_type),
+            package=cls._package(properties, distribution),
+            name=cls._name(properties, distribution),
             author=properties.author,
             version=version,
             human_version=version,
             ankiweb_id=properties.ankiweb_id,
             mod=int(time.time()),
-            conflicts=cls._conflicts(properties, distribution_type),
+            conflicts=cls._conflicts(properties, distribution),
             min_point_version=min_point_version,
             max_point_version=max_point_version,
         )
@@ -109,7 +107,7 @@ class ManifestGenerator:
         return manifest
 
     @staticmethod
-    def _package(properties: AddonProperties, distribution_type: DistType) -> str:
+    def _package(properties: AddonProperties, distribution: Distribution) -> str:
         """Determine package name for specified distribution type
 
         Using a different package name for local and ankiweb distributions allows
@@ -119,19 +117,19 @@ class ManifestGenerator:
         As `ankiweb_id` is unknown until the add-on is published, we handle this
         special case by constructing a temporary name from `module_name`
         """
-        if distribution_type == "local":
+        if distribution == Distribution.local:
             return properties.module_name
         return properties.ankiweb_id or f"{properties.module_name}_ankiweb"
 
     @staticmethod
-    def _name(properties: AddonProperties, distribution_type: DistType) -> str:
-        if distribution_type == "local" and properties.local_name_suffix:
+    def _name(properties: AddonProperties, distribution: Distribution) -> str:
+        if distribution == Distribution.local and properties.local_name_suffix:
             return f"{properties.display_name}{properties.local_name_suffix}"
         return properties.display_name
 
     @staticmethod
     def _conflicts(
-        properties: AddonProperties, distribution_type: DistType
+        properties: AddonProperties, distribution: Distribution
     ) -> list[str] | None:
         if (conflicts := properties.conflicts) is None:
             return None
@@ -140,10 +138,10 @@ class ManifestGenerator:
 
         branch_conflict: str | None = None
 
-        if distribution_type == "local":
+        if distribution == Distribution.local:
             if properties.local_conflicts_with_ankiweb and properties.ankiweb_id:
                 branch_conflict = properties.ankiweb_id
-        elif distribution_type == "ankiweb":
+        elif distribution == Distribution.ankiweb:
             if properties.ankiweb_conflicts_with_local:
                 branch_conflict = properties.module_name
 
