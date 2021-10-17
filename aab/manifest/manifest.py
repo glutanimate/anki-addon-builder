@@ -44,7 +44,7 @@ from ..project.model import AddonProperties
 from .model import AddonManifest, ExtendedAddonManifest
 
 
-class ManifestUtility:
+class ManifestService:
     def __init__(self, manifest_factory: Type[ManifestGenerator]):
         self._manifest_factory = manifest_factory
 
