@@ -7,11 +7,10 @@ from pydantic import AnyHttpUrl, BaseModel, Field, validator
 from ..shared.validators import validate_semver
 
 
-class AddonProperties(BaseModel):
-    json_name: ClassVar[str] = "addon"
-
-    class Config:
-        title = "Add-on Properties, as managed by Anki Add-on Builder"
+class AddonProperties(
+    BaseModel, title="Add-on properties, as managed by Anki Add-on Builder"
+):
+    json_name: ClassVar[str] = "addon"  # json file name stem
 
     display_name: str = Field(
         ..., description="The name displayed in Anki's UI (e.g. in the add-on list)"

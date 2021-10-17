@@ -1,13 +1,16 @@
 from __future__ import annotations
 
-from typing import List, Optional
+from typing import ClassVar, List, Optional
 
 from pydantic import BaseModel, Field, validator
 
 from ..shared.validators import validate_semver
 
 
-class AddonManifest(BaseModel):
+class AddonManifest(BaseModel, title="Anki add-on manifest"):
+
+    json_name: ClassVar[str] = "manifest"  # json file name stem
+
     package: str = Field(
         ...,
         description=(
@@ -61,7 +64,9 @@ class AddonManifest(BaseModel):
         return conflict
 
 
-class ExtendedAddonManifest(AddonManifest):
+class ExtendedAddonManifest(
+    AddonManifest, title="Extended Anki add-on manifest, as used by Anki Add-on Builder"
+):
     version: Optional[str] = Field(
         default=None,
         description="[aab] Version string, set to the same value as human_version",
