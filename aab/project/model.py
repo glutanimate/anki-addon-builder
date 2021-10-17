@@ -10,13 +10,7 @@ class AddonProperties(BaseModel):
     json_name: ClassVar[str] = "addon"
 
     class Config:
-        title = "Anki Add-on Builder Add-on Specification"
-        schema_extra = {
-            "description": (
-                "JSON schema for the addon.json configuration files used by Anki Add-on"
-                " Builder"
-            )
-        }
+        title = "Add-on Properties, as managed by Anki Add-on Builder"
 
     display_name: str = Field(
         ..., description="The name displayed in Anki's UI (e.g. in the add-on list)"
