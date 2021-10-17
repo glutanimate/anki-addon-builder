@@ -43,7 +43,8 @@ isort = "^5.9.3"
 mypy = "^0.910"
 flake8 = "^4.0.1"
 black = "^21.9b0"
-datamodel-code-generator = "^0.11.14"
+# (Temporary) Install from GitHub for VS Code support: https://github.com/samuelcolvin/pydantic/pull/2721
+pydantic = {git = "https://github.com/samuelcolvin/pydantic", rev = "4be3f45e20e6f3652572896fee062f44e1ff4ae5"}
 
 [tool.poetry.extras]
 qt5 = ["PyQt5"]
