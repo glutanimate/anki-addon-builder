@@ -54,9 +54,15 @@ class AddonPropertiesService:
             with self._properties_path.open("r", encoding="utf-8") as properties_file:
                 properties_dict = json.loads(properties_file.read())
                 properties = AddonProperties(**properties_dict)
-        except (IOError, OSError, ValueError, ValidationError):
+        except (IOError, OSError):
             logging.error(
                 f"Error: Could not read '{self._properties_path}'. Traceback follows"
+                " below:\n"
+            )
+            raise
+        except (ValueError, ValidationError):
+            logging.error(
+                f"Error: Invalid '{self._properties_file}' file. Traceback follows"
                 " below:\n"
             )
             raise
