@@ -42,27 +42,21 @@ from pydantic import ValidationError
 from .model import AddonProperties
 
 
-class AddonPropertiesService:
-
-    _properties_file = "addon.json"
-
-    def __init__(self, root_path: Path):
-        self._properties_path = root_path / self._properties_file
-
-    def read_properties(self) -> AddonProperties:
+class AddonPropertiesReader:
+    @staticmethod
+    def read(properties_path: Path) -> AddonProperties:
         try:
-            with self._properties_path.open("r", encoding="utf-8") as properties_file:
+            with properties_path.open("r", encoding="utf-8") as properties_file:
                 properties_dict = json.loads(properties_file.read())
                 properties = AddonProperties(**properties_dict)
         except (IOError, OSError):
             logging.error(
-                f"Error: Could not read '{self._properties_path}'. Traceback follows"
-                " below:\n"
+                f"Error: Could not read '{properties_path}'. Traceback follows below:\n"
             )
             raise
         except (ValueError, ValidationError):
             logging.error(
-                f"Error: Invalid '{self._properties_file}' file. Traceback follows"
+                f"Error: Could not parse '{properties_path}'. Traceback follows"
                 " below:\n"
             )
             raise
