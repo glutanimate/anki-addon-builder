@@ -1,11 +1,22 @@
 from __future__ import annotations
 
-from typing import List, Optional
+from typing import ClassVar, List, Optional
 
 from pydantic import BaseModel, Field
 
 
 class AddonProperties(BaseModel):
+    json_name: ClassVar[str] = "addon"
+    
+    class Config:
+        title = "Anki Add-on Builder Add-on Specification"
+        schema_extra = {
+            "description": (
+                "JSON schema for the addon.json configuration files used by Anki Add-on"
+                " Builder"
+            )
+        }
+
     display_name: str = Field(
         ..., description="The name displayed in Anki's UI (e.g. in the add-on list)"
     )
