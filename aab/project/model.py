@@ -30,15 +30,17 @@ class AddonProperties(BaseModel):
         ),
     )
     local_name_suffix: Optional[str] = Field(
-        None,
+        default=None,
         description=(
             "A suffix to the display name to apply when creating builds for non-ankiweb"
             " distribution."
         ),
     )
-    ankiweb_id: Optional[str] = Field(None, description="The AnkiWeb upload ID.")
+    ankiweb_id: Optional[str] = Field(
+        default=None, description="The AnkiWeb upload ID."
+    )
     version: Optional[str] = Field(
-        None,
+        default=None,
         description=(
             "Add-on version string. Needs to follow semantic versioning guidelines."
         ),
@@ -47,52 +49,57 @@ class AddonProperties(BaseModel):
         ..., description="The main author/maintainer/publisher of the add-on."
     )
     contact: Optional[str] = Field(
-        None,
+        default=None,
         description=(
             "Contact details to list for the author (e.g. either a website or email)"
         ),
     )
     homepage: Optional[AnyHttpUrl] = Field(
-        None, description="Homepage of the add-on project (e.g. GitHub repository link)"
+        default=None,
+        description="Homepage of the add-on project (e.g. GitHub repository link)",
     )
     tags: Optional[str] = Field(
-        None,
+        default=None,
         description=(
             "Space-delimited list of tags that characterize the add-on on AnkiWeb."
         ),
     )
     copyright_start: Optional[int] = Field(
-        None,
+        default=None,
         description=(
             "Starting year to list for automatically generated copyright headers."
         ),
     )
     conflicts: Optional[List[str]] = Field(
-        None,
+        default=None,
         description=(
             "A list of other AnkiWeb add-on IDs or package names that conflict with"
             " this add-on."
         ),
         title="Conflicting Add-ons",
     )
-    ankiweb_conflicts_with_local: Optional[bool] = Field(True, description="TODO")
-    local_conflicts_with_ankiweb: Optional[bool] = Field(True, description="TODO")
+    ankiweb_conflicts_with_local: Optional[bool] = Field(
+        default=True, description="TODO"
+    )
+    local_conflicts_with_ankiweb: Optional[bool] = Field(
+        default=True, description="TODO"
+    )
     min_anki_version: Optional[str] = Field(
-        None,
+        default=None,
         description=(
             "SemVer version string describing the minimum required Anki version to run"
             " this add-on."
         ),
     )
     max_anki_version: Optional[str] = Field(
-        None,
+        default=None,
         description=(
             "SemVer version string describing the maximum supported Anki version of"
             " this add-on"
         ),
     )
     tested_anki_version: Optional[str] = Field(
-        None,
+        default=None,
         description=(
             "SemVer version string describing the latest Anki version this add-on was"
             " tested on."
