@@ -39,7 +39,7 @@ from pathlib import Path
 
 from pydantic import ValidationError
 
-from aab.project.model import AddonProperties
+from .model import AddonProperties
 
 
 class AddonPropertiesService:
