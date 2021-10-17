@@ -2,12 +2,13 @@ from __future__ import annotations
 
 from typing import ClassVar, List, Optional
 
-from pydantic import BaseModel, Field
+from packaging.version import InvalidVersion, Version
+from pydantic import AnyHttpUrl, BaseModel, Field, validator
 
 
 class AddonProperties(BaseModel):
     json_name: ClassVar[str] = "addon"
-    
+
     class Config:
         title = "Anki Add-on Builder Add-on Specification"
         schema_extra = {
@@ -57,7 +58,7 @@ class AddonProperties(BaseModel):
             "Contact details to list for the author (e.g. either a website or email)"
         ),
     )
-    homepage: Optional[str] = Field(
+    homepage: Optional[AnyHttpUrl] = Field(
         None, description="Homepage of the add-on project (e.g. GitHub repository link)"
     )
     tags: Optional[str] = Field(
@@ -66,7 +67,7 @@ class AddonProperties(BaseModel):
             "Space-delimited list of tags that characterize the add-on on AnkiWeb."
         ),
     )
-    copyright_start: Optional[float] = Field(
+    copyright_start: Optional[int] = Field(
         None,
         description=(
             "Starting year to list for automatically generated copyright headers."
@@ -103,3 +104,11 @@ class AddonProperties(BaseModel):
             " tested on."
         ),
     )
+
+    @validator("min_anki_version", "max_anki_version", "tested_anki_version")
+    def check_semver(cls, value: str):
+        try:
+            _ = Version(value)
+        except InvalidVersion:
+            raise
+        return value
