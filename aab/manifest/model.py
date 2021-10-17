@@ -2,7 +2,7 @@ from __future__ import annotations
 
 from typing import List, Optional
 
-from pydantic import BaseModel, Field
+from pydantic import BaseModel, Field, validator
 
 
 class AddonManifest(BaseModel):
@@ -50,6 +50,14 @@ class AddonManifest(BaseModel):
         default=None,
         description="Homepage of the add-on project (e.g. GitHub repository link)",
     )
+    
+    @validator("conflicts", each_item=True)
+    def check_conflicts(cls, conflict: str, values: dict):
+        if len(conflict) < 1:
+            raise ValueError("Conflict specifier cannot be an empty string.")
+        if conflict == values.get("package"):
+            raise ValueError("Add-on can not conflict with itself.")
+            
 
 
 class ExtendedAddonManifest(AddonManifest):
