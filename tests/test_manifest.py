@@ -6,7 +6,7 @@ from typing import Any
 import pytest
 from pydantic import ValidationError
 
-from aab.manifest.model import AddonManifest
+from aab.manifest.model import AddonManifest, ExtendedAddonManifest
 
 _core_manifest: dict[str, Any] = {
     "package": "sample_addon",
@@ -32,3 +32,13 @@ def test_fails_on_empty_required_fields():
         with pytest.raises(ValidationError) as exception_info:
             AddonManifest(**manifest)
         assert "at least 1 characters" in str(exception_info.value)
+
+
+def test_ankiweb_id_constrained():
+    manifest = deepcopy(_core_manifest)
+    manifest["ankiweb_id"] = "10398301324"
+    assert ExtendedAddonManifest(**manifest)
+    manifest["ankiweb_id"] = "foo"
+    with pytest.raises(ValidationError) as exception_info:
+        ExtendedAddonManifest(**manifest)
+    assert "does not match regex" in str(exception_info.value)
