@@ -35,6 +35,7 @@ class AddonProperties(
             "A suffix to the display name to apply when creating builds for non-ankiweb"
             " distribution."
         ),
+        min_length=1
     )
     ankiweb_id: Optional[str] = Field(
         default=None, description="The AnkiWeb upload ID."
