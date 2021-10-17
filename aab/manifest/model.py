@@ -4,6 +4,8 @@ from typing import List, Optional
 
 from pydantic import BaseModel, Field, validator
 
+from ..shared.validators import validate_semver
+
 
 class AddonManifest(BaseModel):
     package: str = Field(
@@ -21,6 +23,7 @@ class AddonManifest(BaseModel):
     mod: Optional[int] = Field(
         default=None,
         description="The time the add-on was last modified (unix timestamp in seconds)",
+        gt=0,
     )
     conflicts: Optional[List[str]] = Field(
         default=None,
@@ -55,6 +58,7 @@ class AddonManifest(BaseModel):
             raise ValueError("Conflict specifier cannot be an empty string.")
         if conflict == values.get("package"):
             raise ValueError("Add-on can not conflict with itself.")
+        return conflict
 
 
 class ExtendedAddonManifest(AddonManifest):
@@ -69,3 +73,5 @@ class ExtendedAddonManifest(AddonManifest):
         default=None,
         description="[aab] The main author/maintainer/publisher of the add-on.",
     )
+
+    _validate_versions = validator("version", allow_reuse=True)(validate_semver)

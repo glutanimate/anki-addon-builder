@@ -2,8 +2,9 @@ from __future__ import annotations
 
 from typing import ClassVar, List, Optional
 
-from packaging.version import InvalidVersion, Version
 from pydantic import AnyHttpUrl, BaseModel, Field, validator
+
+from ..shared.validators import validate_semver
 
 
 class AddonProperties(BaseModel):
@@ -106,10 +107,6 @@ class AddonProperties(BaseModel):
         ),
     )
 
-    @validator("min_anki_version", "max_anki_version", "tested_anki_version")
-    def check_semver(cls, value: str):
-        try:
-            _ = Version(value)
-        except InvalidVersion:
-            raise
-        return value
+    _validate_versions = validator(
+        "min_anki_version", "max_anki_version", "tested_anki_version", allow_reuse=True
+    )(validate_semver)
