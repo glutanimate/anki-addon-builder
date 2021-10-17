@@ -35,7 +35,7 @@ import json
 import time
 from copy import deepcopy
 from pathlib import Path
-from typing import Literal, Optional, Union
+from typing import Literal, Optional, Type, Union
 
 DistType = Union[Literal["local"], Literal["ankiweb"]]
 
@@ -45,18 +45,20 @@ from .model import AddonManifest, ExtendedAddonManifest
 
 
 class ManifestUtility:
-    @classmethod
+    def __init__(self, manifest_factory: Type[ManifestGenerator]):
+        self._manifest_factory = manifest_factory
+
     def create_manifest(
-        cls,
+        self,
         properties: AddonProperties,
         version: str,
         distribution_type: DistType,
         target_directory: Path,
     ):
-        manifest = ManifestGenerator.manifest(
+        manifest = self._manifest_factory.manifest(
             properties=properties, version=version, distribution_type=distribution_type
         )
-        cls._write_manifest(manifest, target_directory)
+        self._write_manifest(manifest, target_directory)
 
     @classmethod
     def _write_manifest(cls, manifest: AddonManifest, target_directory: Path):
