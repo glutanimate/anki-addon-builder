@@ -29,98 +29,126 @@
 #
 # Any modifications to this file must keep this entire header intact.
 
+from __future__ import annotations
+
 import json
-import logging
+import time
 from copy import deepcopy
 from pathlib import Path
-from typing import Any, Dict, Literal, Optional, Union
-
-from .config import Config
-from .git import Git
+from typing import Literal, Optional, Union
 
 DistType = Union[Literal["local"], Literal["ankiweb"]]
 
 
-class ManifestUtils:
+from ..project.model import AddonProperties
+from .model import AddonManifest, ExtendedAddonManifest
+
+
+class ManifestUtility:
     @classmethod
-    def generate_and_write_manifest(
+    def create_manifest(
         cls,
-        addon_properties: Config,
+        properties: AddonProperties,
         version: str,
-        dist_type: DistType,
-        target_dir: Path,
+        distribution_type: DistType,
+        target_directory: Path,
     ):
-        logging.info("Writing manifest...")
-        manifest = cls.generate_manifest_from_properties(
-            addon_properties=addon_properties, version=version, dist_type=dist_type
+        manifest = ManifestGenerator.manifest(
+            properties=properties, version=version, distribution_type=distribution_type
         )
-        cls.write_manifest(manifest=manifest, target_dir=target_dir)
+        cls._write_manifest(manifest, target_directory)
 
     @classmethod
-    def generate_manifest_from_properties(
-        cls,
-        addon_properties: Config,
-        version: str,
-        dist_type: DistType,
-    ) -> Dict[str, Any]:
-        manifest = {
-            "name": addon_properties["display_name"],
-            "package": addon_properties["module_name"],
-            "ankiweb_id": addon_properties["ankiweb_id"],
-            "author": addon_properties["author"],
-            "version": version,
-            "homepage": addon_properties.get("homepage", ""),
-            "conflicts": deepcopy(addon_properties["conflicts"]),
-            "mod": Git().modtime(version),
-        }
+    def _write_manifest(cls, manifest: AddonManifest, target_directory: Path):
+        if not target_directory.is_dir():
+            raise ValueError(f"Provided path '{target_directory}' is not a directory ")
+        manifest_path = target_directory / f"{manifest.json_name}.json"
+        manifest_dict = manifest.dict(exclude_none=True)
 
-        # Add version specifiers:
-
-        min_anki_version = addon_properties.get("min_anki_version")
-        max_anki_version = addon_properties.get("max_anki_version")
-        tested_anki_version = addon_properties.get("tested_anki_version")
-
-        if min_anki_version:
-            manifest["min_point_version"] = cls._min_point_version(min_anki_version)
-
-        if max_anki_version or tested_anki_version:
-            manifest["max_point_version"] = cls._max_point_version(
-                max_anki_version, tested_anki_version
+        with manifest_path.open("w", encoding="utf-8") as manifest_file:
+            manifest_file.write(
+                json.dumps(manifest_dict, indent=4, sort_keys=False, ensure_ascii=False)
             )
 
-        # Update values for distribution type
-        if dist_type == "local":
-            if (
-                addon_properties.get("local_conflicts_with_ankiweb", True)
-                and addon_properties["ankiweb_id"]
-            ):
-                manifest["conflicts"].insert(0, addon_properties["ankiweb_id"])
-        elif dist_type == "ankiweb":
-            if (
-                addon_properties.get("ankiweb_conflicts_with_local", True)
-                and addon_properties["module_name"]
-            ):
-                manifest["conflicts"].insert(0, addon_properties["module_name"])
 
-            # This is inconsistent, but we can't do much else when
-            # ankiweb_id is still unknown (i.e. first upload):
-            manifest["package"] = (
-                addon_properties["ankiweb_id"] or addon_properties["module_name"]
+class ManifestGenerator:
+    @classmethod
+    def manifest(
+        cls, properties: AddonProperties, version: str, distribution_type: DistType
+    ) -> ExtendedAddonManifest:
+        max_point_version = (
+            cls._max_point_version(
+                max_anki_version=properties.max_anki_version,
+                tested_anki_version=properties.tested_anki_version,
             )
+            if properties.max_anki_version or properties.tested_anki_version
+            else None
+        )
+
+        min_point_version = (
+            cls._min_point_version(properties.min_anki_version)
+            if properties.min_anki_version
+            else None
+        )
+
+        manifest = ExtendedAddonManifest(
+            package=cls._package(properties, distribution_type),
+            name=cls._name(properties, distribution_type),
+            author=properties.author,
+            version=version,
+            human_version=version,
+            ankiweb_id=properties.ankiweb_id,
+            mod=int(time.time()),
+            conflicts=cls._conflicts(properties, distribution_type),
+            min_point_version=min_point_version,
+            max_point_version=max_point_version,
+        )
 
         return manifest
 
-    @classmethod
-    def write_manifest(cls, manifest: Dict[str, Any], target_dir: Path):
-        target_path = target_dir / "manifest.json"
-        with target_path.open("w", encoding="utf-8") as manifest_file:
-            manifest_file.write(
-                json.dumps(manifest, indent=4, sort_keys=False, ensure_ascii=False)
-            )
+    @staticmethod
+    def _package(properties: AddonProperties, distribution_type: DistType) -> str:
+        """Determine package name for specified distribution type
 
-    @classmethod
-    def _anki_version_to_point_version(cls, version: str) -> int:
-        return int(version.split(".")[-1])
+        Using a different package name for local and ankiweb distributions allows
+        maintaining multiple release branches of the same add-on without running
+        the risk of pre-releases being overwritten by patches served via AnkiWeb.
+
+        As `ankiweb_id` is unknown until the add-on is published, we handle this
+        special case by constructing a temporary name from `module_name`
+        """
+        if distribution_type == "local":
+            return properties.module_name
+        return properties.ankiweb_id or f"{properties.module_name}_ankiweb"
+
+    @staticmethod
+    def _name(properties: AddonProperties, distribution_type: DistType) -> str:
+        if distribution_type == "local" and properties.local_name_suffix:
+            return f"{properties.display_name}{properties.local_name_suffix}"
+        return properties.display_name
+
+    @staticmethod
+    def _conflicts(
+        properties: AddonProperties, distribution_type: DistType
+    ) -> list[str] | None:
+        if (conflicts := properties.conflicts) is None:
+            return None
+
+        conflicts = deepcopy(conflicts)
+
+        branch_conflict: str | None = None
+
+        if distribution_type == "local":
+            if properties.local_conflicts_with_ankiweb and properties.ankiweb_id:
+                branch_conflict = properties.ankiweb_id
+        elif distribution_type == "ankiweb":
+            if properties.ankiweb_conflicts_with_local:
+                branch_conflict = properties.module_name
+
+        if branch_conflict:
+            conflicts.insert(0, branch_conflict)
+
+        return conflicts
 
     @classmethod
     def _min_point_version(cls, min_anki_version: str) -> int:
@@ -138,167 +166,6 @@ class ManifestUtils:
             return cls._anki_version_to_point_version(tested_anki_version)
         return None
 
-
-####
-
-
-
-_SCHEMAS: Dict[str, dict] = {}
-for schema_name in ("addon", "manifest"):
-    with (PATH_PACKAGE / "schemas" / f"{schema_name}.schema.json").open(
-        "r", encoding="utf-8"
-    ) as schema_file:
-        _SCHEMAS[schema_name] = json.loads(schema_file.read())
-
-
-class ConfigError(Exception):
-    pass
-
-
-class Config(UserDict):
-
-    """
-    Simple dictionary-like interface to addon.json
-    """
-
-    def __init__(self, path: Optional[Path] = None):
-        self._path = path or PATH_CONFIG
-        self.data = self.__read()
-
-    # Public API
-
-    def manifest(self, build_props: dict) -> dict:
-        _manifest: Dict[str, Any] = {}
-
-        for manifest_key in _SCHEMAS["manifest"]["properties"].keys():
-            try:
-                getter = getattr(self, f"_{manifest_key}", None)
-                value = getter(build_props) if getter else None
-            except AttributeError:
-                value = self.data[manifest_key]
-            except Exception:
-                print("Missing mapping between addon.json and manifest.json")
-                raise
-
-            if value:
-                _manifest[manifest_key] = value
-
-        return _manifest
-
-    # Dictionary interface
-
-    def __setitem__(self, name: str, value: Any):
-        self.data[name] = value
-        self.__write(self.data)
-
-    # File system access
-
-    def __read(self) -> dict:
-        try:
-            with self._path.open(encoding="utf-8") as f:
-                data = json.loads(f.read())
-            jsonschema.validate(data, _SCHEMAS["addon"])
-            return data
-        except (IOError, OSError, ValueError, ValidationError):
-            logging.error(
-                "Error: Could not read '{}'. Traceback follows below:\n".format(
-                    self._path.name
-                )
-            )
-            raise
-
-    def __write(self, data: dict):
-        try:
-            with self._path.open("w", encoding="utf-8") as f:
-                json.dump(data, f, ensure_ascii=False, indent=4, sort_keys=False)
-        except (IOError, OSError):
-            logging.error(
-                "Error: Could not write to '{}'. Traceback follows below:\n".format(
-                    self._path.name
-                )
-            )
-            raise
-
-    # Helper methods
-
-    def __anki_version_to_point_version(self, version: str) -> int:
+    @staticmethod
+    def _anki_version_to_point_version(version: str) -> int:
         return int(version.split(".")[-1])
-
-    def __validate_semver(self, version: str) -> bool:
-        try:
-            Version(version)
-        except InvalidVersion:
-            return False
-        return True
-
-    # Manifest value getters
-
-    def _name(self, build_props: dict):
-        name = self.data["display_name"]
-        if self.data.get("local_dist_suffix"):
-            name += self.data["local_name_suffix"]
-        return name
-
-    def _package(self, build_props: dict):
-        # this is inconsistent, but we can't do much else when
-        # ankiweb_id is still unknown (i.e. first upload):
-        if build_props["dist"] == "ankiweb" and self.data["module_name"]:
-            return self.data.get("ankiweb_id") or self.data["module_name"] + "_ankiweb"
-
-    def _min_point_version(self, build_props: dict):
-        key = "min_anki_version"
-        if self.data.get(key):
-            return self.__anki_version_to_point_version(self.data[key])
-
-    def _max_point_version(self, build_props: dict) -> Optional[int]:
-        if self.data.get("max_anki_version"):
-            # -version in "max_point_version" specifies a definite max supported version
-            return -1 * self.__anki_version_to_point_version(
-                self.data["max_anki_version"]
-            )
-        elif self.data.get("tested_anki_version"):
-            # +version in "max_point_version" indicates version tested on
-            return self.__anki_version_to_point_version(
-                self.data["tested_anki_version"]
-            )
-        return None
-
-    def _mod(self, build_props: dict) -> int:
-        return build_props["mod"]
-
-    def _conflicts(self, build_props: dict) -> List[str]:
-        # Update values for distribution type
-        conflicts = copy.copy(self.data.get("conflicts", []))
-        self_conflict = None
-
-        if build_props["dist"] == "local":
-            if self.data.get("local_conflicts_with_ankiweb", True) and self.data.get(
-                "ankiweb_id"
-            ):
-                self_conflict = self.data.get("ankiweb_id")
-        elif build_props["dist"] == "ankiweb":
-            if self.data.get("ankiweb_conflicts_with_local", True) and self.data.get(
-                "module_name"
-            ):
-                self_conflict = self.data.get("module_name")
-
-            self_conflict = self.data["module_name"]
-
-        if self_conflict:
-            conflicts.insert(0, self_conflict)
-
-        return conflicts
-
-    def _human_version(self, build_props: dict):
-        return self._version(build_props)
-
-    def _version(self, build_props: dict) -> Optional[str]:
-        version = self.data.get("version")
-        if not version:
-            return None
-
-        if not self.__validate_semver(version):
-            raise ConfigError(
-                f"Version string '{version}' does not conform to semantic versioning"
-            )
-        return self.data["version"]
