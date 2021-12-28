@@ -38,7 +38,7 @@
       "type": "array",
       "items": {
         "type": "string",
-        "enum": ["anki20", "anki21"]
+        "enum": ["anki21"]
       }
     },
     "min_anki_version": {

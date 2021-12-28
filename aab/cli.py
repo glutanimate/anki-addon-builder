@@ -180,7 +180,7 @@ def construct_parser():
         help="Anki version to build for",
         type=str,
         default="anki21",
-        choices=["anki21", "anki20", "all"],
+        choices=["anki21", "all"],
     )
 
     dist_parent = argparse.ArgumentParser(add_help=False)

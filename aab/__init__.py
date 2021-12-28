@@ -49,7 +49,8 @@ from pathlib import Path
 
 # Meta
 
-__version__ = "0.1.5-beta.6"
+
+__version__ = "0.1.5-beta.6+qt6temp"
 __author__ = "Aristotelis P. (Glutanimate)"
 __title__ = "Anki Add-on Builder"
 __homepage__ = "https://glutanimate.com"

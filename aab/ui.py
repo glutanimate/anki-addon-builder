@@ -76,20 +76,14 @@ __all__ = [
 class UIBuilder(object):
 
     _re_munge = re.compile(r"^import .+?_rc(\n)?$", re.MULTILINE)
-    _pyqt_version = {"anki21": "5", "anki20": "4"}
+    _pyqt_version = {"anki21": "6"}
     _types = {
         "forms": {
             "pattern": "*.ui",
             "tool": "pyuic",
             "post_build": "_munge_form",
             "suffix": "",
-        },
-        "resources": {
-            "pattern": "*.qrc",
-            "tool": "pyrcc",
-            "post_build": None,
-            "suffix": "_rc",
-        },
+        }
     }
 
     def __init__(self, root=None):
@@ -97,11 +91,7 @@ class UIBuilder(object):
         self._config = Config()
         gui_path = self._root / "src" / self._config["module_name"] / "gui"
         self._paths = {
-            "forms": {"in": self._root / "designer", "out": gui_path / "forms"},
-            "resources": {
-                "in": self._root / "resources",
-                "out": gui_path / "resources",
-            },
+            "forms": {"in": self._root / "designer", "out": gui_path / "forms"}
         }
         self._format_dict = self._get_format_dict()
 
