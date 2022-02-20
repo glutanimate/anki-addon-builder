@@ -50,7 +50,7 @@ from pathlib import Path
 # Meta
 
 
-__version__ = "0.1.5-beta.6+qt6temp"
+__version__ = "1.0.0-dev.1"
 __author__ = "Aristotelis P. (Glutanimate)"
 __title__ = "Anki Add-on Builder"
 __homepage__ = "https://glutanimate.com"
@@ -58,7 +58,7 @@ __homepage__ = "https://glutanimate.com"
 COPYRIGHT_MSG = """\
 {title} v{version}
 
-Copyright (C) 2016-2021  {author}  <{homepage}>
+Copyright (C) 2016-2022  {author}  <{homepage}>
 
 This program comes with ABSOLUTELY NO WARRANTY;
 This is free software, and you are welcome to redistribute it

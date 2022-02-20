@@ -12,7 +12,7 @@ with open(path.join(here, 'README.md'), encoding='utf-8') as f:
 
 setup(
     name='aab',
-    version='0.1.5-beta.6',
+    version='1.0.0-dev.1',
     description='Anki Add-on Builder',
     long_description=long_description,
     long_description_content_type='text/markdown',
@@ -37,9 +37,10 @@ setup(
     python_requires='>=2.7, !=3.0.*, !=3.1.*, !=3.2.*, !=3.3.*, !=3.4.*, <4',
     install_requires=["six", "jsonschema", "whichcraft",
                       "pathlib;python_version<'3.4'"],
-    # e.g. $ pip install aab[anki21]
+    # e.g. $ pip install aab[qt6]
     extras_require={
-        'anki21': ['PyQt5>=5.12']
+        'qt6': ['PyQt6>=6.2.2'],
+        'qt5': ['PyQt5>=5.12'],
     },
     entry_points={
         'console_scripts': [
