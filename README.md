@@ -40,42 +40,56 @@ This is still very much a work-in-progress. Neither the API, nor the implementat
 
 ### Usage
 
-You can get an overview of all supported actions by accessing the built-in help:
+You can get an overview of all supported actions by accessing the built-in help (options below reflect latest main branch state and might not be available in pypi builds, yet):
 
 ```
 $ aab -h
-usage: aab [-h] [-v] [-s] {build,ui,clean} ...
+usage: aab [-h] [-v] {build,ui,manifest,clean,create_dist,build_dist,package_dist} ...
 
 positional arguments:
-    {build,ui,clean}
-    build           Build and package add-on for distribution
-    ui              Compile add-on user interface files
-    clean           Clean leftover build files
+  {build,ui,manifest,clean,create_dist,build_dist,package_dist}
+    build               Build and package add-on for distribution
+    ui                  Compile add-on user interface files
+    manifest            Generate manifest file from add-on properties in addon.json
+    clean               Clean leftover build files
+    create_dist         Prepare source tree distribution for building under build/dist. This is
+                        intended to be used in build scripts and should be run before `build_dist`
+                        and `package_dist`.
+    build_dist          Build add-on files from prepared source tree under build/dist. This step
+                        performs all source code post-processing handled by aab itself (e.g.
+                        building the Qt UI and writing the add-on manifest). As with `create_dist`
+                        and `package_dist`, this command is meant to be used in build scripts
+                        where it can provide an avenue for performing additional processing ahead
+                        of packaging the add-on.
+    package_dist        Package pre-built distribution of add-on files under build/dist into a
+                        distributable .ankiaddon package. This is inteded to be used in build
+                        scripts and called after both `create_dist` and `build_dist` have been
+                        run.
 
 optional arguments:
-    -h, --help        show this help message and exit
-    -v, --verbose     Enable verbose output
+  -h, --help            show this help message and exit
+  -v, --verbose         Enable verbose output
 ```
 
 Each subcommand also comes with its own help screen, e.g.:
 
 ```
 $ aab build -h
-usage: aab build [-h] [-t {anki21,anki20,all}] [-d {local,ankiweb,all}]
-                 [version]
+usage: aab build [-h] [-t {qt6,qt5,all,anki21}] [-d {local,ankiweb,all}] [version]
 
 positional arguments:
-  version               Version to build as a git reference (e.g. 'v1.2.0' or
-                        'd338f6405'). Special keywords: 'current' – latest
-                        commit, 'release' – latest tag. Leave empty to build
-                        latest tag.
+  version               Version to (pre-)build as a git reference (e.g. 'v1.2.0' or 'd338f6405').
+                        Special keywords: 'dev' - working directory, 'current' – latest commit,
+                        'release' – latest tag. Leave empty to build latest tag.
 
 optional arguments:
   -h, --help            show this help message and exit
-  -t {anki21,anki20,all}, --target {anki21,anki20,all}
-                        Anki version to build for
+  -t {qt6,qt5,all,anki21}, --target {qt6,qt5,all,anki21}
+                        Anki release type to build for. Use 'all' (deprecated alias: 'anki21') to
+                        target both Qt5 and Qt6.
   -d {local,ankiweb,all}, --dist {local,ankiweb,all}
                         Distribution channel to build for
+
 ```
 
 #### Examples

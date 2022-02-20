@@ -177,10 +177,10 @@ def construct_parser():
     target_parent.add_argument(
         "-t",
         "--target",
-        help="Anki version to build for",
+        help="Anki release type to build for. Use 'all' (deprecated alias: 'anki21') to target both Qt5 and Qt6.",
         type=str,
         default="all",
-        choices=["qt6", "qt5", "anki21", "all"],
+        choices=["qt6", "qt5", "all", "anki21"],
     )
 
     dist_parent = argparse.ArgumentParser(add_help=False)
@@ -286,8 +286,12 @@ def main():
     logging.basicConfig(stream=sys.stdout, level=level, format="%(message)s")
 
     # Argument aliases
-    
+
     if hasattr(args, "target") and args.target == "anki21":
+        print(
+            "WARNING: 'anki21' is deprecated as a target type. Please use 'all' instead "
+            "if targeting both qt6 and qt5 Anki builds."
+        )
         args.target = "all"
 
     # Run
