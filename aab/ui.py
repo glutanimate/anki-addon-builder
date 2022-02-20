@@ -76,7 +76,7 @@ __all__ = [
 class UIBuilder(object):
 
     _re_munge = re.compile(r"^import .+?_rc(\n)?$", re.MULTILINE)
-    _pyqt_version = {"anki21": "6"}
+    _pyqt_version = {"qt6": "6", "qt5": "5"}
     _types = {
         "forms": {
             "pattern": "*.ui",
@@ -95,7 +95,7 @@ class UIBuilder(object):
         }
         self._format_dict = self._get_format_dict()
 
-    def build(self, target="anki21", pyenv=None):
+    def build(self, target="qt6", pyenv=None):
         logging.info("Starting UI build tasks for target %r...", target)
 
         for filetype, paths in self._paths.items():

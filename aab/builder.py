@@ -82,7 +82,7 @@ class AddonBuilder(object):
         self._config = Config()
         self._path_dist_module = PATH_DIST / "src" / self._config["module_name"]
 
-    def build(self, target="anki21", disttype="local", pyenv=None):
+    def build(self, target="qt6", disttype="local", pyenv=None):
         logging.info(
             "\n--- Building %s %s for %s/%s ---\n",
             self._config["display_name"],
@@ -108,7 +108,7 @@ class AddonBuilder(object):
         PATH_DIST.mkdir(parents=True)
         Git().archive(self._version, PATH_DIST)
 
-    def build_dist(self, target="anki21", disttype="local", pyenv=None):
+    def build_dist(self, target="qt6", disttype="local", pyenv=None):
         self._copy_licenses()
         if self._path_changelog.exists():
             self._copy_changelog()
@@ -124,19 +124,15 @@ class AddonBuilder(object):
         logging.info("Building UI...")
         UIBuilder(root=PATH_DIST).build(target=target, pyenv=pyenv)
 
-    def package_dist(self, target="anki21", disttype="local"):
+    def package_dist(self, target="qt6", disttype="local"):
         return self._package(target, disttype)
 
     def _package(self, target, disttype):
         logging.info("Packaging add-on...")
         config = self._config
 
-        if target == "anki21":
-            to_zip = self._path_dist_module
-            ext = "ankiaddon"
-        else:
-            to_zip = PATH_DIST / "src"
-            ext = "zip"
+        to_zip = self._path_dist_module
+        ext = "ankiaddon"
 
         out_name = "{repo_name}-{version}-{target}{dist}.{ext}".format(
             repo_name=config["repo_name"],

@@ -38,7 +38,7 @@
       "type": "array",
       "items": {
         "type": "string",
-        "enum": ["anki21"]
+        "enum": ["qt6", "qt5", "anki21"]
       }
     },
     "min_anki_version": {

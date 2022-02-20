@@ -179,8 +179,8 @@ def construct_parser():
         "--target",
         help="Anki version to build for",
         type=str,
-        default="anki21",
-        choices=["anki21", "all"],
+        default="all",
+        choices=["qt6", "qt5", "anki21", "all"],
     )
 
     dist_parent = argparse.ArgumentParser(add_help=False)
@@ -284,6 +284,11 @@ def main():
         level = logging.INFO
 
     logging.basicConfig(stream=sys.stdout, level=level, format="%(message)s")
+
+    # Argument aliases
+    
+    if hasattr(args, "target") and args.target == "anki21":
+        args.target = "all"
 
     # Run
     args.func(args)
