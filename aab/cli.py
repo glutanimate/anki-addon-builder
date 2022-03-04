@@ -42,7 +42,7 @@ from six import PY2
 from . import PATH_ROOT, COPYRIGHT_MSG, DIST_TYPES
 from .config import Config, PATH_CONFIG
 from .builder import AddonBuilder, clean_repo
-from .ui import UIBuilder
+from .ui import UIBuilder, write_qt_shim
 from .manifest import ManifestUtils
 from .git import Git
 
@@ -80,6 +80,10 @@ def build(args):
             logging.info("\n=== Build task %s/%s ===", cnt, total)
             builder.build(target=target, disttype=dist)
             cnt += 1
+    
+    logging.info("\n=== Writing Qt compatibility shim ===")
+    write_qt_shim(PATH_ROOT)
+    logging.info("Done.")
 
 
 def ui(args):
@@ -93,6 +97,10 @@ def ui(args):
         logging.info("\n=== Build task %s/%s ===\n", cnt, total)
         builder.build(target=target)
         cnt += 1
+    
+    logging.info("\n=== Writing Qt compatibility shim ===")
+    write_qt_shim(PATH_ROOT)
+    logging.info("Done.")
 
 
 def manifest(args):
@@ -135,6 +143,9 @@ def build_dist(args):
             builder.build_dist(target=target, disttype=dist)
             cnt += 1
 
+    logging.info("\n=== Writing Qt compatibility shim ===")
+    write_qt_shim(PATH_ROOT)
+    logging.info("Done.")
 
 def package_dist(args):
     targets = [args.target] if args.target != "all" else Config()["targets"]
