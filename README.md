@@ -26,17 +26,23 @@ This is still very much a work-in-progress. Neither the API, nor the implementat
 
 ### Installation
 
-#### Requirements
-
-`aab` needs to be run in an Anki development environment to work correctly. Please refer to [Anki's documentation](https://github.com/dae/anki/blob/master/README.development) for information on how to set this up.
-
 #### Installing the latest release
 
     pip install aab
 
 #### Installing from the master branch
 
-    pip install --upgrade git+https://github.com/glutanimate/anki-addon-builder.git
+    pip install --upgrade git+https://github.com/glutanimate/anki-addon-builder.git#egg=aab
+
+#### Installing with Qt support
+
+`aab` optionally supports building UI forms created with Qt designer. To make sure you have all the pre-requisites installed you can add `[qt5,qt6]` to the command above, i.e.:
+
+```
+pip install --upgrade git+https://github.com/glutanimate/anki-addon-builder.git#egg=aab[qt5,qt6]
+```
+
+This will enable aab to build Qt forms that are compatible with both Qt5 and Qt6 builds of Anki. If you are only targeting Qt5 or Qt6, you can adjust the command above to only install that particular Qt version.
 
 ### Usage
 
@@ -97,7 +103,7 @@ optional arguments:
 _Build latest tagged add-on release_
 
 ```
-aab build -d local -t anki21 release
+aab build -d local -t all release
 ```
 
 or simply
@@ -108,10 +114,10 @@ aab build
 
 The output artifacts will be, by default, written into `./build/`.
 
-_Compile Qt UI forms and resources for Anki 2.1_
+_Compile Qt UI forms and resources for Qt6 builds of Anki_
 
 ```bash
-aab ui -t anki21
+aab ui -t qt6
 ```
 
 ### Specifications
@@ -122,9 +128,9 @@ In order for `aab` to work correctly, your project should generally follow the d
 
 ```
 project root
-├── src [required] (contains add-on package and Anki 2.0 entry-point)
+├── src [required] (contains add-on package)
 │   ├── {module_name} [required] (add-on package)
-|   └── {display_name}.py [optional] (Anki 2.0 entry-point)
+├── designer [optional] (contains Qt designer .ui files that aab should compile)
 └── addon.json [required] (contains add-on meta information read by aab)
 ```
 
@@ -134,9 +140,17 @@ For a more detailed look at the entire directory tree please feel free to take a
 
 All of the metadata needed by `aab` to work correctly is stored in an `addon.json` file at the root of the project tree. For more information on its fields and their specifications please refer to the [schema file](https://github.com/glutanimate/anki-addon-builder/blob/master/aab/schema.json).
 
+#### Importing Qt Forms Compiled with `aab`
+
+`aab` creates a package under `src/<module_name>/gui/forms` that automatically takes care of choosing between forms for Qt5 builds of Anki and Qt6 builds. For instance, to import a UI form saved as `options.ui` in the `designer` folder, in your add-on `__init__.py` you would do:
+
+```python
+from gui.forms.options import Ui_Dialog  # or whichever class name you chose for the widget/dialog
+```
+
 ### License and Credits
 
-*Anki Add-on Builder* is *Copyright © 2019 [Aristotelis P.](https://glutanimate.com/) (Glutanimate)*
+*Anki Add-on Builder* is *Copyright © 2019-2022 [Aristotelis P.](https://glutanimate.com/) (Glutanimate)*
 
 With code contributions by the following awesome people:
 
