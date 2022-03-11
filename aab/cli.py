@@ -39,7 +39,7 @@ import argparse
 
 from six import PY2
 
-from . import PATH_ROOT, COPYRIGHT_MSG, DIST_TYPES
+from . import PATH_ROOT, PATH_DIST, COPYRIGHT_MSG, DIST_TYPES
 from .config import Config, PATH_CONFIG
 from .builder import AddonBuilder, clean_repo
 from .ui import UIBuilder, write_qt_shim
@@ -82,7 +82,7 @@ def build(args):
             cnt += 1
     
     logging.info("\n=== Writing Qt compatibility shim ===")
-    write_qt_shim(PATH_ROOT)
+    write_qt_shim(PATH_DIST)
     logging.info("Done.")
 
 
@@ -144,7 +144,7 @@ def build_dist(args):
             cnt += 1
 
     logging.info("\n=== Writing Qt compatibility shim ===")
-    write_qt_shim(PATH_ROOT)
+    write_qt_shim(PATH_DIST)
     logging.info("Done.")
 
 def package_dist(args):
