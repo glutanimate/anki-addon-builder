@@ -103,7 +103,6 @@ class QtVersion(Enum):
     qt5 = 5
     qt6 = 6
 
-
 class UIBuilder:
 
     _re_munge = re.compile(r"^import .+?_rc(\n)?$", re.MULTILINE)
@@ -151,18 +150,23 @@ class UIBuilder:
 
     def _build(self, filetype, path_in, path_out, qt_version_number: int, pyenv):
         settings = self._types[filetype]
+        tool = settings["tool"]
 
         # Basic checks
-
-        tool = "{tool}{nr}".format(tool=settings["tool"], nr=qt_version_number)
-        if which(tool) is None:
-            logging.error("%s not found. Skipping %s build.", tool, tool)
-            return False
 
         ui_files = list(path_in.glob(settings["pattern"]))
         if not ui_files:
             logging.warning(
                 "No %s found in %s. Skipping %s build.", filetype, path_in, tool
+            )
+            return False
+
+        tool = "{tool}{nr}".format(tool=tool, nr=qt_version_number)
+        if which(tool) is None:
+            logging.error(
+                f"ERROR: {tool} not found. Please make sure PyQt{qt_version_number} is"
+                " installed, or change the configuration to build the add-on for a"
+                " different target Qt version.",
             )
             return False
 
