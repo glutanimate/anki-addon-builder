@@ -34,13 +34,11 @@
 Main Add-on Builder
 """
 
-from __future__ import (absolute_import, division, print_function,
-                        unicode_literals)
-
 import logging
 import os
 import shutil
 import sys
+from typing import List
 import zipfile
 
 from six import text_type as unicode
@@ -49,7 +47,7 @@ from . import PATH_DIST, PATH_ROOT
 from .config import Config
 from .git import Git
 from .manifest import ManifestUtils
-from .ui import UIBuilder
+from .ui import UIBuilder, QtVersion
 from .utils import call_shell, copy_recursively, purge
 
 _trash_patterns = ["*.pyc", "*.pyo", "__pycache__"]
@@ -62,7 +60,7 @@ def clean_repo():
     purge(".", _trash_patterns, recursive=True)
 
 
-class AddonBuilder(object):
+class AddonBuilder:
 
     _paths_licenses = [PATH_DIST, PATH_DIST / "resources"]
     _path_optional_icons = PATH_ROOT / "resources" / "icons" / "optional"
@@ -82,19 +80,18 @@ class AddonBuilder(object):
         self._config = Config()
         self._path_dist_module = PATH_DIST / "src" / self._config["module_name"]
 
-    def build(self, target="qt6", disttype="local", pyenv=None):
+    def build(self, qt_versions: List[QtVersion], disttype="local", pyenv=None):
         logging.info(
-            "\n--- Building %s %s for %s/%s ---\n",
+            "\n--- Building %s %s for %s ---\n",
             self._config["display_name"],
             self._version,
-            target,
             disttype,
         )
 
         self.create_dist()
-        self.build_dist(target=target, disttype=disttype, pyenv=pyenv)
+        self.build_dist(qt_versions=qt_versions, disttype=disttype, pyenv=pyenv)
 
-        return self.package_dist(target=target, disttype=disttype)
+        return self.package_dist(qt_versions=qt_versions, disttype=disttype)
 
     def create_dist(self):
         logging.info(
@@ -108,7 +105,7 @@ class AddonBuilder(object):
         PATH_DIST.mkdir(parents=True)
         Git().archive(self._version, PATH_DIST)
 
-    def build_dist(self, target="qt6", disttype="local", pyenv=None):
+    def build_dist(self, qt_versions: List[QtVersion], disttype="local", pyenv=None):
         self._copy_licenses()
         if self._path_changelog.exists():
             self._copy_changelog()
@@ -118,26 +115,32 @@ class AddonBuilder(object):
             self._callback_archive()
 
         self._write_manifest(disttype)
-        self._build_ui(target, pyenv)
+        
+        ui_builder = UIBuilder(root=PATH_DIST)
+        
+        for qt_version in qt_versions:
+            ui_builder.build(qt_version=qt_version, pyenv=pyenv)
+        
+        logging.info("Writing Qt compatibility shim...")
+        ui_builder.create_qt_shim()
+        logging.info("Done.")
 
-    def _build_ui(self, target, pyenv):
-        logging.info("Building UI...")
-        UIBuilder(root=PATH_DIST).build(target=target, pyenv=pyenv)
+    def package_dist(self, qt_versions: List[QtVersion], disttype="local"):
+        return self._package(qt_versions, disttype)
 
-    def package_dist(self, target="qt6", disttype="local"):
-        return self._package(target, disttype)
-
-    def _package(self, target, disttype):
+    def _package(self, qt_versions: List[QtVersion], disttype):
         logging.info("Packaging add-on...")
         config = self._config
 
         to_zip = self._path_dist_module
         ext = "ankiaddon"
+        
+        qt_version_str = "+".join(version.name for version in qt_versions)
 
-        out_name = "{repo_name}-{version}-{target}{dist}.{ext}".format(
+        out_name = "{repo_name}-{version}-{qt_version_str}{dist}.{ext}".format(
             repo_name=config["repo_name"],
             version=self._version,
-            target=target,
+            qt_version_str=qt_version_str,
             dist="" if disttype == "local" else "-" + disttype,
             ext=ext,
         )

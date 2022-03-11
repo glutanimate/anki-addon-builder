@@ -30,19 +30,15 @@
 #
 # Any modifications to this file must keep this entire header intact.
 
-
-from __future__ import absolute_import, division, print_function, unicode_literals
-
 import sys
 import logging
 import argparse
+from typing import List
 
-from six import PY2
-
-from . import PATH_ROOT, PATH_DIST, COPYRIGHT_MSG, DIST_TYPES
+from . import PATH_ROOT, COPYRIGHT_MSG, DIST_TYPES
 from .config import Config, PATH_CONFIG
 from .builder import AddonBuilder, clean_repo
-from .ui import UIBuilder, write_qt_shim
+from .ui import QtVersion, UIBuilder
 from .manifest import ManifestUtils
 from .git import Git
 
@@ -63,43 +59,54 @@ def validate_cwd():
     return True
 
 
+# Helpers
+##############################################################################
+
+
+def get_qt_versions(args: argparse.Namespace) -> List[QtVersion]:
+    targets = [args.target] if args.target != "all" else Config()["targets"]
+
+    if "anki21" in targets:
+        qt_versions = [QtVersion.qt5, QtVersion.qt6]
+    else:
+        qt_versions = [QtVersion[key] for key in targets]
+
+    return qt_versions
+
+
 # Entry points
 ##############################################################################
 
 
 def build(args):
-    targets = [args.target] if args.target != "all" else Config()["targets"]
+    qt_versions = get_qt_versions(args)
+
     dists = [args.dist] if args.dist != "all" else DIST_TYPES
 
     builder = AddonBuilder(version=args.version)
 
     cnt = 1
-    total = len(targets) * len(dists)
-    for target in targets:
-        for dist in dists:
-            logging.info("\n=== Build task %s/%s ===", cnt, total)
-            builder.build(target=target, disttype=dist)
-            cnt += 1
-    
-    logging.info("\n=== Writing Qt compatibility shim ===")
-    write_qt_shim(PATH_DIST)
-    logging.info("Done.")
+    total = len(dists)
+    for dist in dists:
+        logging.info("\n=== Build task %s/%s ===", cnt, total)
+        builder.build(qt_versions=qt_versions, disttype=dist)
+        cnt += 1
 
 
 def ui(args):
-    targets = [args.target] if args.target != "all" else Config()["targets"]
+    qt_versions = get_qt_versions(args)
 
     builder = UIBuilder(root=PATH_ROOT)
 
     cnt = 1
-    total = len(targets)
-    for target in targets:
+    total = len(qt_versions)
+    for qt_version in qt_versions:
         logging.info("\n=== Build task %s/%s ===\n", cnt, total)
-        builder.build(target=target)
+        builder.build(qt_version=qt_version)
         cnt += 1
-    
+
     logging.info("\n=== Writing Qt compatibility shim ===")
-    write_qt_shim(PATH_ROOT)
+    builder.create_qt_shim()
     logging.info("Done.")
 
 
@@ -130,36 +137,31 @@ def create_dist(args):
 
 
 def build_dist(args):
-    targets = [args.target] if args.target != "all" else Config()["targets"]
+    qt_versions = get_qt_versions(args)
     dists = [args.dist] if args.dist != "all" else DIST_TYPES
 
     builder = AddonBuilder(version=args.version)
 
     cnt = 1
-    total = len(targets) * len(dists)
-    for target in targets:
-        for dist in dists:
-            logging.info("\n=== Build task %s/%s ===", cnt, total)
-            builder.build_dist(target=target, disttype=dist)
-            cnt += 1
+    total = len(dists)
+    for dist in dists:
+        logging.info("\n=== Build task %s/%s ===", cnt, total)
+        builder.build_dist(qt_versions=qt_versions, disttype=dist)
+        cnt += 1
 
-    logging.info("\n=== Writing Qt compatibility shim ===")
-    write_qt_shim(PATH_DIST)
-    logging.info("Done.")
 
 def package_dist(args):
-    targets = [args.target] if args.target != "all" else Config()["targets"]
+    qt_versions = get_qt_versions(args)
     dists = [args.dist] if args.dist != "all" else DIST_TYPES
 
     builder = AddonBuilder(version=args.version)
 
     cnt = 1
-    total = len(targets) * len(dists)
-    for target in targets:
-        for dist in dists:
-            logging.info("\n=== Build task %s/%s ===", cnt, total)
-            builder.package_dist(target=target, disttype=dist)
-            cnt += 1
+    total = len(dists)
+    for dist in dists:
+        logging.info("\n=== Build task %s/%s ===", cnt, total)
+        builder.package_dist(qt_versions=qt_versions, disttype=dist)
+        cnt += 1
 
 
 def clean(args):
@@ -172,8 +174,7 @@ def clean(args):
 
 def construct_parser():
     parser = argparse.ArgumentParser()
-    if not PY2:
-        parser.set_defaults(func=lambda x: parser.print_usage())
+    parser.set_defaults(func=lambda x: parser.print_usage())
     subparsers = parser.add_subparsers()
 
     parser.add_argument(

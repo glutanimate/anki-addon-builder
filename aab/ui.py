@@ -41,6 +41,7 @@ import logging
 import re
 from pathlib import Path
 from datetime import datetime
+from typing import Dict
 
 from six import text_type as unicode
 from whichcraft import which
@@ -98,25 +99,17 @@ else:
     from .qt5 import *  # noqa: F401
 '''
 
-
-def write_qt_shim(project_root: Path):
-    # FIXME: temporary
-    config = Config()
-    out_path: Path = (
-        project_root / "src" / config["module_name"] / "gui" / "forms" / "__init__.py"
-    )
-    if out_path.exists():
-        out_path.unlink()
-    format_dict = _get_format_dict(config)
-    content = _template_qt_shim.format(**format_dict)
-    with out_path.open("w", encoding="utf-8") as f:
-        f.write(content)
+from enum import Enum
 
 
-class UIBuilder(object):
+class QtVersion(Enum):
+    qt5 = 5
+    qt6 = 6
+
+
+class UIBuilder:
 
     _re_munge = re.compile(r"^import .+?_rc(\n)?$", re.MULTILINE)
-    _pyqt_version = {"qt6": "6", "qt5": "5"}
     _types = {
         "forms": {
             "pattern": "*.ui",
@@ -130,30 +123,41 @@ class UIBuilder(object):
         self._root = root or PATH_DIST
         self._config = Config()
         gui_path = self._root / "src" / self._config["module_name"] / "gui"
-        self._paths = {
+        self._paths: Dict[str, Dict[str, Path]] = {
             "forms": {"in": self._root / "designer", "out": gui_path / "forms"}
         }
         self._format_dict = _get_format_dict(self._config)
 
-    def build(self, target="qt6", pyenv=None):
-        logging.info("Starting UI build tasks for target %r...", target)
+    def build(self, qt_version: QtVersion, pyenv=None):
+        qt_version_key = qt_version.name
+
+        logging.info("Starting UI build tasks for target %r...", qt_version_key)
 
         for filetype, paths in self._paths.items():
             path_in = paths["in"]
-            path_out = paths["out"] / target
+            path_out = paths["out"] / qt_version_key
             if not path_in.exists():
                 logging.warning("No Qt %s folder found. Skipping build.", filetype)
                 continue
-            self._build(filetype, path_in, path_out, target, pyenv)
+            self._build(filetype, path_in, path_out, qt_version.value, pyenv)
 
         logging.info("Done with all UI build tasks.")
 
-    def _build(self, filetype, path_in, path_out, target, pyenv):
+    def create_qt_shim(self):
+        out_path = self._paths["forms"]["out"] / "__init__.py"
+        if out_path.exists():
+            out_path.unlink()
+        format_dict = _get_format_dict(self._config)
+        content = _template_qt_shim.format(**format_dict)
+        with out_path.open("w", encoding="utf-8") as f:
+            f.write(content)
+
+    def _build(self, filetype, path_in, path_out, qt_version_number: int, pyenv):
         settings = self._types[filetype]
 
         # Basic checks
 
-        tool = "{tool}{nr}".format(tool=settings["tool"], nr=self._pyqt_version[target])
+        tool = "{tool}{nr}".format(tool=settings["tool"], nr=qt_version_number)
         if which(tool) is None:
             logging.error("%s not found. Skipping %s build.", tool, tool)
             return False
