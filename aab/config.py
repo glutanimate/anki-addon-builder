@@ -34,14 +34,13 @@
 Project config parser
 """
 
-from __future__ import absolute_import, division, print_function, unicode_literals
-
 import json
 import logging
 
 import jsonschema
 from jsonschema.exceptions import ValidationError
-from six.moves import UserDict
+
+from collections import UserDict
 
 from . import PATH_PACKAGE, PATH_ROOT
 

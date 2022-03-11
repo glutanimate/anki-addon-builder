@@ -38,16 +38,14 @@ import logging
 import os
 import shutil
 import sys
-from typing import List
 import zipfile
-
-from six import text_type as unicode
+from typing import List
 
 from . import PATH_DIST, PATH_ROOT
 from .config import Config
 from .git import Git
 from .manifest import ManifestUtils
-from .ui import UIBuilder, QtVersion
+from .ui import QtVersion, UIBuilder
 from .utils import call_shell, copy_recursively, purge
 
 _trash_patterns = ["*.pyc", "*.pyo", "__pycache__"]
@@ -56,7 +54,7 @@ _trash_patterns = ["*.pyc", "*.pyo", "__pycache__"]
 def clean_repo():
     logging.info("Cleaning repository...")
     if PATH_DIST.exists():
-        shutil.rmtree(unicode(PATH_DIST))
+        shutil.rmtree(str(PATH_DIST))
     purge(".", _trash_patterns, recursive=True)
 
 
@@ -115,12 +113,12 @@ class AddonBuilder:
             self._callback_archive()
 
         self._write_manifest(disttype)
-        
+
         ui_builder = UIBuilder(root=PATH_DIST)
-        
+
         for qt_version in qt_versions:
             ui_builder.build(qt_version=qt_version, pyenv=pyenv)
-        
+
         logging.info("Writing Qt compatibility shim...")
         ui_builder.create_qt_shim()
         logging.info("Done.")
@@ -134,7 +132,7 @@ class AddonBuilder:
 
         to_zip = self._path_dist_module
         ext = "ankiaddon"
-        
+
         qt_version_str = "+".join(version.name for version in qt_versions)
 
         out_name = "{repo_name}-{version}-{qt_version_str}{dist}.{ext}".format(
@@ -150,9 +148,9 @@ class AddonBuilder:
         if out_path.exists():
             out_path.unlink()
 
-        with zipfile.ZipFile(unicode(out_path), "w", zipfile.ZIP_DEFLATED) as myzip:
-            rootlen = len(unicode(to_zip)) + 1
-            for root, dirs, files in os.walk(unicode(to_zip)):
+        with zipfile.ZipFile(str(out_path), "w", zipfile.ZIP_DEFLATED) as myzip:
+            rootlen = len(str(to_zip)) + 1
+            for root, dirs, files in os.walk(str(to_zip)):
                 for file in files:
                     path = os.path.join(root, file)
                     myzip.write(path, path[rootlen:])
@@ -177,12 +175,12 @@ class AddonBuilder:
                 continue
             for file in path.glob("LICENSE*"):
                 target = self._path_dist_module / "{stem}.txt".format(stem=file.stem)
-                shutil.copyfile(unicode(file), unicode(target))
+                shutil.copyfile(str(file), str(target))
 
     def _copy_changelog(self):
         logging.info("Copying changelog...")
         target = self._path_dist_module / "CHANGELOG.md"
-        shutil.copy(unicode(self._path_changelog), unicode(target))
+        shutil.copy(str(self._path_changelog), str(target))
 
     def _copy_optional_icons(self):
         logging.info("Copying additional icons...")

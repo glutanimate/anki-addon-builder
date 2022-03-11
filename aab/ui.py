@@ -34,21 +34,18 @@
 UI Compilation
 """
 
-from __future__ import absolute_import, division, print_function, unicode_literals
-
-import shutil
 import logging
 import re
-from pathlib import Path
+import shutil
 from datetime import datetime
+from pathlib import Path
 from typing import Dict
 
-from six import text_type as unicode
 from whichcraft import which
 
 from . import PATH_DIST, __title__, __version__
 from .config import Config
-from .utils import relpath, call_shell
+from .utils import call_shell, relpath
 
 _template_header = '''\
 # -*- coding: utf-8 -*-
@@ -180,7 +177,7 @@ class UIBuilder:
 
         logging.debug("Cleaning up old %s...", filetype)
         if path_out.exists():
-            shutil.rmtree(unicode(path_out))
+            shutil.rmtree(str(path_out))
         path_out.mkdir(parents=True)
 
         # UI build loop
