@@ -39,7 +39,7 @@ import re
 import shutil
 from datetime import datetime
 from pathlib import Path
-from typing import Dict
+from typing import Optional
 
 from whichcraft import which
 
@@ -103,25 +103,21 @@ class QtVersion(Enum):
     qt5 = 5
     qt6 = 6
 
+
 class UIBuilder:
 
     _re_munge = re.compile(r"^import .+?_rc(\n)?$", re.MULTILINE)
-    _types = {
-        "forms": {
-            "pattern": "*.ui",
-            "tool": "pyuic",
-            "post_build": "_munge_form",
-            "suffix": "",
-        }
-    }
+    _ui_file_glob = "*.ui"
+    _ui_file_tool = "pyuic"
 
     def __init__(self, root=None):
         self._root = root or PATH_DIST
         self._config = Config()
         gui_path = self._root / "src" / self._config["module_name"] / "gui"
-        self._paths: Dict[str, Dict[str, Path]] = {
-            "forms": {"in": self._root / "designer", "out": gui_path / "forms"}
-        }
+
+        self._forms_source_path = self._root / "designer"
+        self._forms_out_path = gui_path / "forms"
+
         self._format_dict = _get_format_dict(self._config)
 
     def build(self, qt_version: QtVersion, pyenv=None):
@@ -129,18 +125,23 @@ class UIBuilder:
 
         logging.info("Starting UI build tasks for target %r...", qt_version_key)
 
-        for filetype, paths in self._paths.items():
-            path_in = paths["in"]
-            path_out = paths["out"] / qt_version_key
-            if not path_in.exists():
-                logging.warning("No Qt %s folder found. Skipping build.", filetype)
-                continue
-            self._build(filetype, path_in, path_out, qt_version.value, pyenv)
+        path_in = self._forms_source_path
+        path_out = self._forms_out_path / qt_version_key
+
+        if not path_in.exists():
+            logging.warning(
+                f"No Qt forms folder found under {self._forms_source_path}. Skipping"
+                " build."
+            )
+            return
+
+
+        self._build(path_in, path_out, qt_version.value, pyenv)
 
         logging.info("Done with all UI build tasks.")
 
     def create_qt_shim(self):
-        out_path = self._paths["forms"]["out"] / "__init__.py"
+        out_path = self._forms_out_path / "__init__.py"
         if out_path.exists():
             out_path.unlink()
         format_dict = _get_format_dict(self._config)
@@ -148,17 +149,20 @@ class UIBuilder:
         with out_path.open("w", encoding="utf-8") as f:
             f.write(content)
 
-    def _build(self, filetype, path_in, path_out, qt_version_number: int, pyenv):
-        settings = self._types[filetype]
-        tool = settings["tool"]
+    def _build(
+        self,
+        path_in: Path,
+        path_out: Path,
+        qt_version_number: int,
+        pyenv: Optional[str] = None,
+    ):
+        tool = self._ui_file_tool
 
         # Basic checks
 
-        ui_files = list(path_in.glob(settings["pattern"]))
+        ui_files = list(path_in.glob(self._ui_file_glob))
         if not ui_files:
-            logging.warning(
-                "No %s found in %s. Skipping %s build.", filetype, path_in, tool
-            )
+            logging.warning("No forms found in %s. Skipping %s build.", path_in, tool)
             return False
 
         tool = "{tool}{nr}".format(tool=tool, nr=qt_version_number)
@@ -179,45 +183,37 @@ class UIBuilder:
 
         # Cleanup
 
-        logging.debug("Cleaning up old %s...", filetype)
+        logging.debug("Cleaning up old forms...")
         if path_out.exists():
             shutil.rmtree(str(path_out))
         path_out.mkdir(parents=True)
 
         # UI build loop
 
-        if settings["post_build"]:
-            post_build = getattr(self, settings["post_build"], None)
-        else:
-            post_build = None
-
-        suffix = settings["suffix"]
         modules = []
 
         env = "" if not pyenv else self._pyenv_prefix(pyenv)
 
         for in_file in ui_files:
             stem = in_file.stem
-            new_stem = stem + suffix
-            out_file = Path(path_out / new_stem).with_suffix(".py")
+            out_file = Path(path_out / stem).with_suffix(".py")
 
-            logging.debug("Building element '%s'...", new_stem)
+            logging.debug("Building element '%s'...", stem)
             # Use relative paths to improve readability of form header:
             cmd = "{env} {tool} {in_file} -o {out_file}".format(
                 env=env, tool=tool, in_file=relpath(in_file), out_file=relpath(out_file)
             )
             call_shell(cmd)
 
-            if post_build:
-                post_build(out_file)
+            self._munge_form(out_file)
 
-            modules.append(new_stem)
+            modules.append(stem)
 
         # Last steps
 
         self._write_init_file(modules, path_out)
 
-        logging.debug("Done with %s.", filetype)
+        logging.debug("Done with forms.")
         return True
 
     def _pyenv_prefix(self, pyenv):
@@ -260,7 +256,6 @@ class UIBuilder:
             f.seek(0)
             f.write(munged)
             f.truncate()
-
 
 def _get_format_dict(config):
     start_year = config.get("copyright_start")
