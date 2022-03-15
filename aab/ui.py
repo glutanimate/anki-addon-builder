@@ -39,13 +39,19 @@ import re
 import shutil
 from datetime import datetime
 from pathlib import Path
-from typing import Optional
+from typing import Optional, List
 
 from whichcraft import which
 
 from . import PATH_DIST, __title__, __version__
 from .config import Config
 from .utils import call_shell, relpath
+from .legacy import QRCParser, QRCMigrator, QResourceDescriptor
+
+QT_RESOURCES_FOLDER_NAME = "resources"
+QT_DESIGNER_FOLDER_NAME = "designer"
+FORMS_PACKAGE_NAME = "forms"
+RESOURCES_PACKAGE_NAME = "resources"
 
 _template_header = '''\
 # -*- coding: utf-8 -*-
@@ -110,15 +116,17 @@ class UIBuilder:
     _ui_file_glob = "*.ui"
     _ui_file_tool = "pyuic"
 
-    def __init__(self, root=None):
+    def __init__(self, root: Optional[Path] = None):
         self._root = root or PATH_DIST
         self._config = Config()
-        gui_path = self._root / "src" / self._config["module_name"] / "gui"
 
-        self._forms_source_path = self._root / "designer"
-        self._forms_out_path = gui_path / "forms"
+        self._gui_path: Path = self._root / "src" / self._config["module_name"] / "gui"
+        self._resources_source_path = self._root / QT_RESOURCES_FOLDER_NAME
+        self._resources_out_path = self._gui_path / RESOURCES_PACKAGE_NAME
+        self._forms_source_path = self._root / QT_DESIGNER_FOLDER_NAME
+        self._forms_out_path = self._gui_path / FORMS_PACKAGE_NAME
 
-        self._format_dict = _get_format_dict(self._config)
+        self._format_dict = self._get_format_dict()
 
     def build(self, qt_version: QtVersion, pyenv=None):
         qt_version_key = qt_version.name
@@ -135,8 +143,21 @@ class UIBuilder:
             )
             return
 
+        if (
+            self._resources_source_path.exists()
+            and self._config.get("qt_resource_migration_mode") != "disabled"
+        ):
+            resource_prefixes_to_replace = self._migrate_resources()
+        else:
+            resource_prefixes_to_replace = []
 
-        self._build(path_in, path_out, qt_version.value, pyenv)
+        self._build(
+            path_in=path_in,
+            path_out=path_out,
+            qt_version_number=qt_version.value,
+            resource_prefixes_to_replace=resource_prefixes_to_replace,
+            pyenv=pyenv,
+        )
 
         logging.info("Done with all UI build tasks.")
 
@@ -144,7 +165,7 @@ class UIBuilder:
         out_path = self._forms_out_path / "__init__.py"
         if out_path.exists():
             out_path.unlink()
-        format_dict = _get_format_dict(self._config)
+        format_dict = self._format_dict
         content = _template_qt_shim.format(**format_dict)
         with out_path.open("w", encoding="utf-8") as f:
             f.write(content)
@@ -154,6 +175,7 @@ class UIBuilder:
         path_in: Path,
         path_out: Path,
         qt_version_number: int,
+        resource_prefixes_to_replace: List[str],
         pyenv: Optional[str] = None,
     ):
         tool = self._ui_file_tool
@@ -205,7 +227,7 @@ class UIBuilder:
             )
             call_shell(cmd)
 
-            self._munge_form(out_file)
+            self._munge_form(out_file, resource_prefixes_to_replace)
 
             modules.append(stem)
 
@@ -244,7 +266,7 @@ class UIBuilder:
         out = "\n".join("from . import {}".format(m) for m in modules)
         return out
 
-    def _munge_form(self, path):
+    def _munge_form(self, path: Path, resource_prefixes_to_replace: List[str]):
         """
         Munge generated form to remove resource imports
         (I prefer to initialize these manually)
@@ -253,27 +275,59 @@ class UIBuilder:
         with path.open("r+", encoding="utf-8") as f:
             form = f.read()
             munged = self._re_munge.sub("", form)
+            for prefix in resource_prefixes_to_replace:
+                munged = form.replace(f'":/{prefix}/', f'"{prefix}:')
             f.seek(0)
             f.write(munged)
             f.truncate()
 
-def _get_format_dict(config):
-    start_year = config.get("copyright_start")
-    now = datetime.now().year
-    if start_year and start_year != now:
-        years = "{start_year}-{now}".format(start_year=start_year, now=now)
-    else:
-        years = "{now}".format(now=now)
+    def _migrate_resources(self) -> List[str]:
+        """Returns list of prefixes to replace in built UI forms"""
+        logging.info("Qt resources folder found. Attempting to migrate...")
 
-    contact = config.get("contact")
+        resources: List[QResourceDescriptor] = []
 
-    format_dict = {
-        "display_name": config["display_name"],
-        "author": config["author"],
-        "contact": "" if not contact else " <{}>".format(contact),
-        "__title__": __title__,
-        "__version__": __version__,
-        "years": years,
-    }
+        for qrc_path in self._resources_source_path.glob("*.qrc"):
+            parser = QRCParser(qrc_path=qrc_path)
+            resources.extend(parser.get_qresources())
 
-    return format_dict
+        if not resources:
+            return []
+
+        migrator = QRCMigrator(self._gui_path)
+        integration_snippet = migrator.migrate_resources(resources=resources)
+
+        content_init = (
+            _template_header.format(**self._format_dict) + "\n" + integration_snippet
+        )
+
+        with (self._resources_out_path / "__init__.py").open(
+            "w", encoding="utf-8"
+        ) as f:
+            f.write(content_init)
+
+        prefixes = list(set(resource.prefix for resource in resources))
+
+        return prefixes
+
+    def _get_format_dict(self):
+        config = self._config
+        start_year = config.get("copyright_start")
+        now = datetime.now().year
+        if start_year and start_year != now:
+            years = "{start_year}-{now}".format(start_year=start_year, now=now)
+        else:
+            years = "{now}".format(now=now)
+
+        contact = config.get("contact")
+
+        format_dict = {
+            "display_name": config["display_name"],
+            "author": config["author"],
+            "contact": "" if not contact else " <{}>".format(contact),
+            "__title__": __title__,
+            "__version__": __version__,
+            "years": years,
+        }
+
+        return format_dict
