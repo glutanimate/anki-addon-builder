@@ -141,7 +141,7 @@ class QRCMigrator:
                 target_relative_path = source_relative_path if not alias else alias
 
                 source_path = source_parent_path / source_relative_path
-                target_path = self._target_root_path / target_relative_path
+                target_path = self._target_root_path / prefix / target_relative_path
 
                 if target_path.exists():
                     target_path.unlink()
