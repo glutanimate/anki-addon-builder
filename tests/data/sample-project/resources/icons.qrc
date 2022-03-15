@@ -1,0 +1,8 @@
+<RCC>
+  <qresource prefix="/sample-project">
+    <file>icons/help.svg</file>
+    <file>icons/heart.svg</file>
+    <file alias="icons/coffee.svg">icons/optional/coffee.svg</file>
+    <file alias="icons/email.svg">icons/optional/email.svg</file>
+  </qresource>
+</RCC>
