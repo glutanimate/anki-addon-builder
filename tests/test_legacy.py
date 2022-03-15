@@ -1,4 +1,3 @@
-#!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
 # Anki Add-on Builder
@@ -39,6 +38,8 @@ from aab.legacy import (
     QResourceDescriptor,
     QResourceFileDescriptor,
 )
+
+from .util import list_files
 
 SAMPLE_PROJECT_NAME = "sample-project"
 
@@ -92,3 +93,16 @@ QDir.addSearchpath("sample-project", "{(gui_src_path / 'resources/sample-project
     )
 
     assert actual_migration_snippet == expected_integration_snippet
+
+    expected_file_structure = """\
+gui/
+    resources/
+        sample-project/
+            icons/
+                coffee.svg
+                heart.svg
+                email.svg
+                help.svg\
+"""
+
+    assert expected_file_structure == list_files(gui_src_path)
