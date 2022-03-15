@@ -42,29 +42,31 @@ from aab.legacy import (
 
 SAMPLE_PROJECT_NAME = "sample-project"
 
-_sample_project_root = Path(__file__).parent / "test-data" / SAMPLE_PROJECT_NAME
+_sample_project_root = Path(__file__).parent / "data" / SAMPLE_PROJECT_NAME
+
+_qrc_sample_resources = [
+    QResourceDescriptor(
+        prefix="sample-project",
+        parent_path=(_sample_project_root / "resources").resolve(),
+        files=[
+            QResourceFileDescriptor(relative_path="icons/help.svg", alias=None),
+            QResourceFileDescriptor(relative_path="icons/heart.svg", alias=None),
+            QResourceFileDescriptor(
+                relative_path="icons/optional/coffee.svg", alias="icons/coffee.svg"
+            ),
+            QResourceFileDescriptor(
+                relative_path="icons/optional/email.svg", alias="icons/email.svg"
+            ),
+        ],
+    )
+]
 
 
 def test_qrc_parser():
     qrc_path = _sample_project_root / "resources" / "icons.qrc"
     parser = QRCParser(qrc_path=qrc_path)
 
-    expected = [
-        QResourceDescriptor(
-            prefix="sample-project",
-            parent_path=PosixPath("tests/test-data/sample-project/resources").resolve(),
-            files=[
-                QResourceFileDescriptor(relative_path="icons/help.svg", alias=None),
-                QResourceFileDescriptor(relative_path="icons/heart.svg", alias=None),
-                QResourceFileDescriptor(
-                    relative_path="icons/optional/coffee.svg", alias="icons/coffee.svg"
-                ),
-                QResourceFileDescriptor(
-                    relative_path="icons/optional/email.svg", alias="icons/email.svg"
-                ),
-            ],
-        )
-    ]
+    expected = _qrc_sample_resources
 
     actual = parser.get_qresources()
 
@@ -79,29 +81,14 @@ def test_qrc_migrator(tmp_path: Path):
 
     migrator = QRCMigrator(gui_path=gui_src_path)
 
-    resources = [
-        QResourceDescriptor(
-            prefix="sample-project",
-            parent_path=PosixPath("tests/test-data/sample-project/resources").resolve(),
-            files=[
-                QResourceFileDescriptor(relative_path="icons/help.svg", alias=None),
-                QResourceFileDescriptor(relative_path="icons/heart.svg", alias=None),
-                QResourceFileDescriptor(
-                    relative_path="icons/optional/coffee.svg", alias="icons/coffee.svg"
-                ),
-                QResourceFileDescriptor(
-                    relative_path="icons/optional/email.svg", alias="icons/email.svg"
-                ),
-            ],
-        )
-    ]
-
     expected_integration_snippet = f"""\
 from aqt.qt import QDir
 
 QDir.addSearchpath("sample-project", "{(gui_src_path / 'assets/sample-project').resolve()}")
 """
 
-    actual_migration_snippet = migrator.migrate_resources(resources=resources)
+    actual_migration_snippet = migrator.migrate_resources(
+        resources=_qrc_sample_resources
+    )
 
     assert actual_migration_snippet == expected_integration_snippet
