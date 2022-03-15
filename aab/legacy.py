@@ -120,10 +120,10 @@ class QRCMigrator:
 
     _qdir_import = """from aqt.qt import QDir\n"""
 
-    _asset_folder = "assets"
+    resources_target_folder = "resources"
 
     def __init__(self, gui_path: Path):
-        self._target_root_path = gui_path / self._asset_folder
+        self._target_root_path = gui_path / self.resources_target_folder
 
     def migrate_resources(self, resources: List[QResourceDescriptor]) -> str:
         """returns QDir initialization command"""

@@ -84,7 +84,7 @@ def test_qrc_migrator(tmp_path: Path):
     expected_integration_snippet = f"""\
 from aqt.qt import QDir
 
-QDir.addSearchpath("sample-project", "{(gui_src_path / 'assets/sample-project').resolve()}")
+QDir.addSearchpath("sample-project", "{(gui_src_path / 'resources/sample-project').resolve()}")
 """
 
     actual_migration_snippet = migrator.migrate_resources(
