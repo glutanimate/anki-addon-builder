@@ -121,10 +121,10 @@ class QRCMigrator:
 from pathlib import Path
 from aqt.qt import QDir
 
-def initialize_resources():
+def initialize_qt_resources():
 {qdir_addpath_block}
 
-initialize_resources()
+initialize_qt_resources()
 """
 
     resources_target_folder = "resources"
