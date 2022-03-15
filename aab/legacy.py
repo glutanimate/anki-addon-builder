@@ -1,4 +1,3 @@
-#!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
 # Anki Add-on Builder
@@ -38,7 +37,7 @@ import shutil
 import xml.etree.ElementTree as ElementTree
 from dataclasses import dataclass
 from pathlib import Path
-from typing import List, Optional
+from typing import List, Optional, Set
 
 TAG_RCC = "RCC"
 TAG_RESOURCE = "qresource"
@@ -118,7 +117,15 @@ class QRCParser:
 
 class QRCMigrator:
 
-    _qdir_import = """from aqt.qt import QDir\n"""
+    _template_integration_snippet = """
+from pathlib import Path
+from aqt.qt import QDir
+
+def initialize_resources():
+{qdir_addpath_block}
+
+initialize_resources()
+"""
 
     resources_target_folder = "resources"
 
@@ -128,11 +135,13 @@ class QRCMigrator:
     def migrate_resources(self, resources: List[QResourceDescriptor]) -> str:
         """returns QDir initialization command"""
 
-        qdir_commands: List[str] = [self._qdir_import]
+        prefixes: Set[str] = set()
 
         for resource in resources:
             prefix = resource.prefix
             source_parent_path = resource.parent_path
+
+            prefixes.add(prefix)
 
             for file in resource.files:
                 source_relative_path = file.relative_path
@@ -158,13 +167,15 @@ class QRCMigrator:
                 else:
                     shutil.copy(source_path, target_path)
 
-            qdir_commands.append(self._build_qdir_command(prefix))
+        qdir_addpath_block = "\n".join(
+            self._build_qdir_command(prefix) for prefix in prefixes
+        )
 
-        initialization_snippet = "\n".join(qdir_commands) + "\n"
+        integration_snippet = self._template_integration_snippet.format(
+            qdir_addpath_block=qdir_addpath_block
+        )
 
-        return initialization_snippet
+        return integration_snippet
 
     def _build_qdir_command(self, prefix: str):
-        prefix_path = self._target_root_path / prefix
-
-        return f"""QDir.addSearchpath("{prefix}", "{prefix_path}")"""
+        return f"""    QDir.addSearchPath("{prefix}", str(Path(__file__).parent / "{prefix}"))"""
