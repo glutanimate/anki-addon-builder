@@ -123,7 +123,7 @@ class QRCMigrator:
     _asset_folder = "assets"
 
     def __init__(self, gui_path: Path):
-        self._target_root_path = gui_path / "assets"
+        self._target_root_path = gui_path / self._asset_folder
 
     def migrate_resources(self, resources: List[QResourceDescriptor]) -> str:
         """returns QDir initialization command"""

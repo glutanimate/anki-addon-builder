@@ -30,7 +30,7 @@
 #
 # Any modifications to this file must keep this entire header intact.
 
-from pathlib import Path, PosixPath
+from pathlib import Path
 from shutil import copytree
 
 from aab.legacy import (
