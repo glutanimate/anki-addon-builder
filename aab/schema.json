@@ -60,6 +60,11 @@
     "local_conflicts_with_ankiweb": {
       "type": "boolean",
       "default": true
+    },
+    "qt_resource_migration_mode": {
+      "type": "string",
+      "enum": ["replace_prefixes_and_package_resources", "only_replace_prefixes", "disabled"],
+      "default": "full"
     }
   },
   "required": [
