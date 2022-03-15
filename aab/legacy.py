@@ -34,12 +34,11 @@
 Limited support for porting legacy Qt5 features to Qt6
 """
 
+import shutil
 import xml.etree.ElementTree as ElementTree
 from dataclasses import dataclass
 from pathlib import Path
 from typing import List, Optional
-
-from .utils import copy_recursively
 
 TAG_RCC = "RCC"
 TAG_RESOURCE = "qresource"
@@ -144,11 +143,24 @@ class QRCMigrator:
                 source_path = source_parent_path / source_relative_path
                 target_path = self._target_root_path / target_relative_path
 
-                copy_recursively(str(source_path), str(target_path))
+                if target_path.exists():
+                    target_path.unlink()
+
+                is_dir = False
+                if source_path.is_dir():
+                    target_path.mkdir(parents=True, exist_ok=True)
+                    is_dir = True
+                elif not target_path.parent.exists():
+                    target_path.parent.mkdir(parents=True, exist_ok=True)
+
+                if is_dir:
+                    shutil.copytree(source_path, target_path)
+                else:
+                    shutil.copy(source_path, target_path)
 
             qdir_commands.append(self._build_qdir_command(prefix))
 
-        initialization_snippet = "\n".join(qdir_commands)
+        initialization_snippet = "\n".join(qdir_commands) + "\n"
 
         return initialization_snippet
 
