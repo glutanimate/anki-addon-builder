@@ -39,16 +39,13 @@ from aab.legacy import (
     QResourceFileDescriptor,
 )
 
+from . import SAMPLE_PROJECT_NAME, SAMPLE_PROJECT_ROOT
 from .util import list_files
-
-SAMPLE_PROJECT_NAME = "sample-project"
-
-_sample_project_root = Path(__file__).parent / "data" / SAMPLE_PROJECT_NAME
 
 _qrc_sample_resources = [
     QResourceDescriptor(
         prefix="sample-project",
-        parent_path=(_sample_project_root / "resources").resolve(),
+        parent_path=(SAMPLE_PROJECT_ROOT / "resources").resolve(),
         files=[
             QResourceFileDescriptor(relative_path="icons/help.svg", alias=None),
             QResourceFileDescriptor(relative_path="icons/heart.svg", alias=None),
@@ -64,7 +61,7 @@ _qrc_sample_resources = [
 
 
 def test_qrc_parser():
-    qrc_path = _sample_project_root / "resources" / "icons.qrc"
+    qrc_path = SAMPLE_PROJECT_ROOT / "resources" / "icons.qrc"
     parser = QRCParser(qrc_path=qrc_path)
 
     expected = _qrc_sample_resources
@@ -76,7 +73,7 @@ def test_qrc_parser():
 
 def test_qrc_migrator(tmp_path: Path):
     test_project_root = tmp_path / SAMPLE_PROJECT_NAME
-    copytree(_sample_project_root, test_project_root)
+    copytree(SAMPLE_PROJECT_ROOT, test_project_root)
 
     gui_src_path = test_project_root / "src" / "sample_project" / "gui"
 
