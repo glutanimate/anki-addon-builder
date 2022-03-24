@@ -82,10 +82,14 @@ def test_qrc_migrator(tmp_path: Path):
 
     migrator = QRCMigrator(gui_path=gui_src_path)
 
-    expected_integration_snippet = f"""\
+    expected_integration_snippet = """
+from pathlib import Path
 from aqt.qt import QDir
 
-QDir.addSearchpath("sample-project", "{(gui_src_path / 'resources/sample-project').resolve()}")
+def initialize_qt_resources():
+    QDir.addSearchPath("sample-project", str(Path(__file__).parent / "sample-project"))
+
+initialize_qt_resources()
 """
 
     actual_migration_snippet = migrator.migrate_resources(
