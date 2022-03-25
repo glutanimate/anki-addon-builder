@@ -84,7 +84,3 @@ def copy_recursively(source, target):
     return call_shell(
         'cp -r "{source}" "{target}"'.format(source=source, target=target)
     )
-
-
-def relpath(path):
-    return path.relative_to(PATH_ROOT)

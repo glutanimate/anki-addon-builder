@@ -38,14 +38,14 @@ import re
 import shutil
 from datetime import datetime
 from pathlib import Path
-from typing import Optional, List
+from typing import List, Optional
 
 from whichcraft import which
 
 from . import PATH_DIST, __title__, __version__
 from .config import Config
-from .utils import call_shell, relpath
-from .legacy import QRCParser, QRCMigrator, QResourceDescriptor
+from .legacy import QRCMigrator, QRCParser, QResourceDescriptor
+from .utils import call_shell
 
 QT_RESOURCES_FOLDER_NAME = "resources"
 QT_DESIGNER_FOLDER_NAME = "designer"
@@ -117,7 +117,7 @@ class UIBuilder:
 
     def __init__(self, root: Optional[Path] = None):
         self._root = root or PATH_DIST
-        self._config = Config()
+        self._config = Config(path=self._root / "addon.json")
 
         self._gui_path: Path = self._root / "src" / self._config["module_name"] / "gui"
         self._resources_source_path = self._root / QT_RESOURCES_FOLDER_NAME
@@ -197,8 +197,8 @@ class UIBuilder:
 
         logging.info(
             "Building files in '%s' to '%s' with '%s'",
-            relpath(path_in),
-            relpath(path_out),
+            self._rel_path(path_in),
+            self._rel_path(path_out),
             tool,
         )
 
@@ -222,7 +222,10 @@ class UIBuilder:
             logging.debug("Building element '%s'...", stem)
             # Use relative paths to improve readability of form header:
             cmd = "{env} {tool} {in_file} -o {out_file}".format(
-                env=env, tool=tool, in_file=relpath(in_file), out_file=relpath(out_file)
+                env=env,
+                tool=tool,
+                in_file=self._rel_path(in_file),
+                out_file=self._rel_path(out_file),
             )
             call_shell(cmd)
 
@@ -245,7 +248,7 @@ class UIBuilder:
         )
 
     def _write_init_file(self, modules, path_out):
-        logging.debug("Generating init file for %s", relpath(path_out))
+        logging.debug("Generating init file for %s", self._rel_path(path_out))
 
         header = _template_header.format(**self._format_dict)
         all_str = self._generate_all_str(modules)
@@ -270,7 +273,7 @@ class UIBuilder:
         Munge generated form to remove resource imports
         (I prefer to initialize these manually)
         """
-        logging.debug("Munging %s...", relpath(path))
+        logging.debug("Munging %s...", self._rel_path(path))
         with path.open("r+", encoding="utf-8") as f:
             form = f.read()
             munged = self._re_munge.sub("", form)
@@ -330,3 +333,6 @@ class UIBuilder:
         }
 
         return format_dict
+
+    def _rel_path(self, path: Path):
+        return path.relative_to(self._root)
