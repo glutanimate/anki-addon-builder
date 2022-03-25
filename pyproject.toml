@@ -1,0 +1,64 @@
+[tool.poetry]
+name = "aab"
+version = "1.0.0-dev.1"
+description = "Anki Add-on Builder"
+authors = ["Aristotelis P. (Glutanimate)"]
+license = "AGPL-3.0-or-later"
+repository = "https://github.com/glutanimate/pytest-anki"
+homepage = "https://github.com/glutanimate/pytest-anki"
+readme = "README.md"
+keywords = ["anki", "development", "build-tools"]
+classifiers = [
+        "Development Status :: 3 - Alpha",
+        "Intended Audience :: Developers",
+        "Topic :: Software Development :: Build Tools",
+        "License :: OSI Approved :: GNU Affero General Public License v3",
+        "Programming Language :: Python :: 3.8",
+        "Programming Language :: Python :: 3.9",
+        "Programming Language :: Python :: 3.10",
+        "Operating System :: POSIX",
+        "Operating System :: MacOS",
+]
+include = ["schema.json"]
+
+[tool.poetry.scripts]
+aab = 'aab.cli:main'
+
+[tool.poetry.dependencies]
+python = "^3.8"
+jsonschema = "^4.4.0"
+whichcraft = "^0.6.1"
+PyQt6 = {version = "^6.2.2", optional = true}
+PyQt5 = {version = "^5.12", optional = true}
+
+[tool.poetry.dev-dependencies]
+mypy = "^0.942"
+isort = "^5.10.1"
+black = "^22.1.0"
+
+[tool.poetry.extras]
+qt6 = ["PyQt6"]
+qt5 = ["PyQt5"]
+
+[build-system]
+requires = ["poetry-core>=1.0.0"]
+build-backend = "poetry.core.masonry.api"
+
+[tool.mypy]
+show_error_codes = true
+ignore_missing_imports = true
+follow_imports = "silent"
+show_column_numbers = true
+
+[tool.isort]
+multi_line_output = 3
+include_trailing_comma = true
+line_length=88
+ensure_newline_before_comments=true
+
+[tool.black]
+experimental-string-processing = true
+
+[tool.pyright]
+include = ["aab"]
+enableTypeIgnoreComments = true
