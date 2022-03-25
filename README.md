@@ -131,6 +131,7 @@ project root
 ├── src [required] (contains add-on package)
 │   ├── {module_name} [required] (add-on package)
 ├── designer [optional] (contains Qt designer .ui files that aab should compile)
+├── resources [optional] (contains Qt designer .qrc files that aab should compile)
 └── addon.json [required] (contains add-on meta information read by aab)
 ```
 
@@ -147,6 +148,24 @@ All of the metadata needed by `aab` to work correctly is stored in an `addon.jso
 ```python
 from gui.forms.options import Ui_Dialog  # or whichever class name you chose for the widget/dialog
 ```
+
+#### Using Qt Resources Compiled with `aab`
+
+Starting with Qt6, PyQt no longer supports Qt resource files. To make the transition easier for add-on authors, `aab` will automatically try to convert any resource files found under `./resources` into a Qt6-supported file structure that is then registered as a `QDir` searchpath.
+
+Alongside creating the file structure as such, `aab` will also attempt to convert any references to the respective resources in your Qt forms to point to the `QDir` structure. That way icons and other resources embedded into designer forms via the Qt resource system should continue working. References in other parts of your source code will have to be updated manually.
+
+To utilize this feature, please do the following:
+
+Pre-supposing that you have generated the `gui` module using `aab ui` (during development) or `aab build` (for builds), initialize the `QDir` searchpath by adding the following to your add-on's `__init__.py`:
+
+```python
+from .gui.resources import initialize_qt_resources
+
+initialize_qt_resources()
+```
+
+This only has to execute once at add-on initialization time.
 
 ### License and Credits
 
