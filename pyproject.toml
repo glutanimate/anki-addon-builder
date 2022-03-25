@@ -35,6 +35,7 @@ PyQt5 = {version = "^5.12", optional = true}
 mypy = "^0.942"
 isort = "^5.10.1"
 black = "^22.1.0"
+bump2version = "^1.0.1"
 
 [tool.poetry.extras]
 qt6 = ["PyQt6"]
