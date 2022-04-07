@@ -118,9 +118,10 @@ class AddonBuilder:
         for qt_version in qt_versions:
             ui_builder.build(qt_version=qt_version, pyenv=pyenv)
 
-        logging.info("Writing Qt compatibility shim...")
-        ui_builder.create_qt_shim()
-        logging.info("Done.")
+        if ui_builder._gui_path.exists():
+            logging.info("Writing Qt compatibility shim...")
+            ui_builder.create_qt_shim()
+            logging.info("Done.")
 
     def package_dist(self, qt_versions: List[QtVersion], disttype="local"):
         return self._package(qt_versions, disttype)
