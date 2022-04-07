@@ -42,7 +42,7 @@ from typing import List, Optional
 
 from whichcraft import which
 
-from . import PATH_DIST, __title__, __version__
+from . import PATH_DIST, PATH_ROOT, __title__, __version__
 from .config import Config
 from .legacy import QRCMigrator, QRCParser, QResourceDescriptor
 from .utils import call_shell
@@ -117,7 +117,7 @@ class UIBuilder:
 
     def __init__(self, root: Optional[Path] = None):
         self._root = root or PATH_DIST
-        self._config = Config(path=self._root / "addon.json")
+        self._config = Config(path=PATH_ROOT / "addon.json")
 
         self._gui_path: Path = self._root / "src" / self._config["module_name"] / "gui"
         self._resources_source_path = self._root / QT_RESOURCES_FOLDER_NAME
