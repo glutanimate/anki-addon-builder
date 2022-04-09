@@ -85,7 +85,7 @@ class Git(object):
             )
             modtimes = call_shell(cmd).splitlines()
             # https://stackoverflow.com/a/12010656
-            modtimes = [int(modtime) for modtime in modtimes]
+            modtimes = [int(modtime) for modtime in modtimes if modtime != ""]
             return max(modtimes)
         else:
             return int(call_shell("git log -1 -s --format=%ct {}".format(version)))
