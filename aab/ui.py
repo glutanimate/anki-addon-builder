@@ -161,6 +161,10 @@ class UIBuilder:
         logging.info("Done with all UI build tasks.")
 
     def create_qt_shim(self):
+        # Qt shims are not needed as there are no qt files
+        if not self._forms_out_path.is_dir():
+            return
+
         out_path = self._forms_out_path / "__init__.py"
         if out_path.exists():
             out_path.unlink()
