@@ -135,13 +135,6 @@ class UIBuilder:
         path_in = self._forms_source_path
         path_out = self._forms_out_path / qt_version_key
 
-        if not path_in.exists():
-            logging.warning(
-                f"No Qt forms folder found under {self._forms_source_path}. Skipping"
-                " build."
-            )
-            return
-
         if (
             self._resources_source_path.exists()
             and self._config.get("qt_resource_migration_mode") != "disabled"
@@ -149,6 +142,13 @@ class UIBuilder:
             resource_prefixes_to_replace = self._migrate_resources()
         else:
             resource_prefixes_to_replace = []
+
+        if not path_in.exists():
+            logging.warning(
+                f"No Qt forms folder found under {self._forms_source_path}. Skipping"
+                " build."
+            )
+            return
 
         self._build(
             path_in=path_in,
