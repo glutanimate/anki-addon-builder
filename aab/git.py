@@ -35,7 +35,7 @@ Basic Git interface
 
 import logging
 
-from .utils import call_shell
+from .utils import call_shell, isMac
 
 
 class Git(object):
@@ -78,9 +78,10 @@ class Git(object):
         if version == "dev":
             # Get timestamps of uncommitted changes and return the most recent.
             # https://stackoverflow.com/a/14142413
+            statcmd = "stat -f %m" if isMac else "stat -c %Y"
             cmd = (
                 "git status -s | while read mode file;"
-                " do echo $(stat -c %Y $file); done"
+                f" do echo $({statcmd} $file); done"
             )
             modtimes = call_shell(cmd).splitlines()
             # https://stackoverflow.com/a/12010656

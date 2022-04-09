@@ -36,6 +36,7 @@ Utility functions
 import logging
 import subprocess
 import sys
+import platform
 
 from . import PATH_ROOT
 
@@ -84,3 +85,6 @@ def copy_recursively(source, target):
     return call_shell(
         'cp -r "{source}" "{target}"'.format(source=source, target=target)
     )
+
+
+isMac = platform.system() == "Darwin"
