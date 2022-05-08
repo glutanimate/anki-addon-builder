@@ -89,14 +89,18 @@ gui/
     ), "Issue with GUI file structure"
 
     with (gui_src_path / "forms" / "qt6" / "dialog.py").open("r") as f:
-        form_contents = f.read()
+        qt6_form_contents = f.read()
+    with (gui_src_path / "forms" / "qt5" / "dialog.py").open("r") as f:
+        qt5_form_contents = f.read()
 
     assert (
-        '"sample-project:icons/help.svg"' in form_contents
+        '"sample-project:icons/help.svg"' in qt6_form_contents
     ), "Base icon not properly remapped"
     assert (
-        '"sample-project:icons/coffee.svg"' in form_contents
+        '"sample-project:icons/coffee.svg"' in qt6_form_contents
     ), "Optional icon not properly remapped"
+
+    assert "icons_rc" not in qt5_form_contents
 
     expected_shim_snippet = """\
 from typing import TYPE_CHECKING
