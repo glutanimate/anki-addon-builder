@@ -278,7 +278,7 @@ class UIBuilder:
             form = f.read()
             munged = self._re_munge.sub("", form)
             for prefix in resource_prefixes_to_replace:
-                munged = form.replace(f'":/{prefix}/', f'"{prefix}:')
+                munged = munged.replace(f'":/{prefix}/', f'"{prefix}:')
             f.seek(0)
             f.write(munged)
             f.truncate()
