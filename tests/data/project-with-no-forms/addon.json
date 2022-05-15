@@ -1,0 +1,9 @@
+{
+  "display_name": "Sample Project",
+  "module_name": "sample_project",
+  "repo_name": "sample-project",
+  "ankiweb_id": "999999999999",
+  "author": "Glutanimate",
+  "conflicts": [],
+  "targets": ["qt6", "qt5"]
+}

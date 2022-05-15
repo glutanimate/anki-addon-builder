@@ -31,5 +31,6 @@
 
 from pathlib import Path
 
+SAMPLE_PROJECTS_FOLDER = Path(__file__).parent / "data"
 SAMPLE_PROJECT_NAME = "sample-project"
-SAMPLE_PROJECT_ROOT = Path(__file__).parent / "data" / SAMPLE_PROJECT_NAME
+SAMPLE_PROJECT_ROOT = SAMPLE_PROJECTS_FOLDER / SAMPLE_PROJECT_NAME
