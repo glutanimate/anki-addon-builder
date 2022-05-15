@@ -174,6 +174,8 @@ This only has to execute once at add-on initialization time.
 With code contributions by the following awesome people:
 
 - [zjosua](https://github.com/zjosua)
+- [Rai](https://github.com/agentydragon)
+- [BlueGreenmagick](https://github.com/BlueGreenMagick)
 
 Anki Add-on Builder is free and open-source software. Its source-code is released under the GNU AGPLv3 license, extended by a number of additional terms. For more information please see the [license file](https://github.com/glutanimate/anki-addon-builder/blob/master/LICENSE) that accompanies this program.
 
