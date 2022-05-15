@@ -37,8 +37,6 @@ import logging
 import subprocess
 import sys
 
-from . import PATH_ROOT
-
 
 def call_shell(command, echo=False, error_exit=True, **kwargs):
     try:

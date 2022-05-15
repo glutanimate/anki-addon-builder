@@ -35,7 +35,7 @@ import logging
 import argparse
 from typing import List
 
-from . import PATH_ROOT, COPYRIGHT_MSG, DIST_TYPES
+from . import PATH_PROJECT_ROOT, COPYRIGHT_MSG, DIST_TYPES
 from .config import Config, PATH_CONFIG
 from .builder import AddonBuilder, clean_repo
 from .ui import QtVersion, UIBuilder
@@ -48,7 +48,7 @@ from .git import Git
 
 
 def validate_cwd():
-    required = (PATH_ROOT / "src", PATH_CONFIG)
+    required = (PATH_PROJECT_ROOT / "src", PATH_CONFIG)
     for path in required:
         if not path.exists():
             print(
@@ -96,7 +96,7 @@ def build(args):
 def ui(args):
     qt_versions = get_qt_versions(args)
 
-    builder = UIBuilder(root=PATH_ROOT)
+    builder = UIBuilder(dist=PATH_PROJECT_ROOT, config=Config())
 
     cnt = 1
     total = len(qt_versions)
@@ -124,7 +124,7 @@ def manifest(args):
         addon_properties=addon_properties,
         version=version,
         dist_type=dist_type,
-        target_dir=PATH_ROOT / "src" / addon_properties["module_name"],
+        target_dir=PATH_PROJECT_ROOT / "src" / addon_properties["module_name"],
     )
 
 

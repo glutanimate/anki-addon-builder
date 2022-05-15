@@ -35,6 +35,7 @@ from pathlib import Path
 from shutil import copytree
 from typing import Union
 
+from aab.config import Config
 from aab.ui import QtVersion, UIBuilder
 
 from . import SAMPLE_PROJECT_NAME, SAMPLE_PROJECT_ROOT, SAMPLE_PROJECTS_FOLDER
@@ -77,8 +78,10 @@ gui/
             dialog.py\
 """
 
+    config = Config(test_project_root / "addon.json")
+
     with change_dir(test_project_root):
-        ui_builder = UIBuilder(test_project_root)
+        ui_builder = UIBuilder(dist=test_project_root, config=config)
 
         ui_builder.build(QtVersion.qt5)
         ui_builder.build(QtVersion.qt6)
@@ -137,8 +140,11 @@ gui/
                 email.svg
                 help.svg\
 """
+
+    config = Config(test_project_root / "addon.json")
+
     with change_dir(test_project_root):
-        ui_builder = UIBuilder(test_project_root)
+        ui_builder = UIBuilder(dist=test_project_root, config=config)
 
         assert ui_builder.build(QtVersion.qt5) is False
         assert ui_builder.build(QtVersion.qt6) is False

@@ -41,9 +41,9 @@ from jsonschema.exceptions import ValidationError
 
 from collections import UserDict
 
-from . import PATH_PACKAGE, PATH_ROOT
+from . import PATH_PACKAGE, PATH_PROJECT_ROOT
 
-PATH_CONFIG = PATH_ROOT / "addon.json"
+PATH_CONFIG = PATH_PROJECT_ROOT / "addon.json"
 
 
 class Config(UserDict):

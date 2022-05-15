@@ -42,12 +42,9 @@ For instructions on how to set up a development environment for Anki
 please refer to Anki's documentation.
 """
 
-from __future__ import absolute_import, division, print_function, unicode_literals
-
 from pathlib import Path
 
 # Meta
-
 
 __version__ = "1.0.0-dev.3"
 __author__ = "Aristotelis P. (Glutanimate)"
@@ -68,7 +65,9 @@ under certain conditions; For details please see the LICENSE file.
 
 # Global variables
 
-PATH_ROOT = Path.cwd()
-PATH_DIST = PATH_ROOT / "build" / "dist"
+# assuming that the cwd is the project root, which might not aloways be the case
+# TODO: optionally read project root from env
+PATH_PROJECT_ROOT = Path.cwd()
+PATH_DIST = PATH_PROJECT_ROOT / "build" / "dist"
 PATH_PACKAGE = Path(__file__).resolve().parent
 DIST_TYPES = ["local", "ankiweb"]

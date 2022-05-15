@@ -42,7 +42,7 @@ from typing import List, Optional
 
 from whichcraft import which
 
-from . import PATH_DIST, PATH_ROOT, __title__, __version__
+from . import __title__, __version__
 from .config import Config
 from .legacy import QRCMigrator, QRCParser, QResourceDescriptor
 from .utils import call_shell
@@ -115,14 +115,14 @@ class UIBuilder:
     _ui_file_glob = "*.ui"
     _ui_file_tool = "pyuic"
 
-    def __init__(self, root: Optional[Path] = None):
-        self._root = root or PATH_DIST
-        self._config = Config(path=PATH_ROOT / "addon.json")
+    def __init__(self, dist: Path, config: Config):
+        self._dist = dist
+        self._config = config
 
-        self._gui_path: Path = self._root / "src" / self._config["module_name"] / "gui"
-        self._resources_source_path = self._root / QT_RESOURCES_FOLDER_NAME
+        self._gui_path: Path = self._dist / "src" / self._config["module_name"] / "gui"
+        self._resources_source_path = self._dist / QT_RESOURCES_FOLDER_NAME
         self._resources_out_path = self._gui_path / RESOURCES_PACKAGE_NAME
-        self._forms_source_path = self._root / QT_DESIGNER_FOLDER_NAME
+        self._forms_source_path = self._dist / QT_DESIGNER_FOLDER_NAME
         self._forms_out_path = self._gui_path / FORMS_PACKAGE_NAME
 
         self._format_dict = self._get_format_dict()
@@ -340,4 +340,4 @@ class UIBuilder:
         return format_dict
 
     def _rel_path(self, path: Path):
-        return path.relative_to(self._root)
+        return path.relative_to(self._dist)

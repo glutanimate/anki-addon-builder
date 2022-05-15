@@ -40,7 +40,7 @@ import sys
 import zipfile
 from typing import List
 
-from . import PATH_DIST, PATH_ROOT
+from . import PATH_DIST, PATH_PROJECT_ROOT
 from .config import Config
 from .git import Git
 from .manifest import ManifestUtils
@@ -60,7 +60,7 @@ def clean_repo():
 class AddonBuilder:
 
     _paths_licenses = [PATH_DIST, PATH_DIST / "resources"]
-    _path_optional_icons = PATH_ROOT / "resources" / "icons" / "optional"
+    _path_optional_icons = PATH_PROJECT_ROOT / "resources" / "icons" / "optional"
     _path_changelog = PATH_DIST / "CHANGELOG.md"
 
     def __init__(self, version=None, callback_archive=None):
@@ -113,7 +113,7 @@ class AddonBuilder:
 
         self._write_manifest(disttype)
 
-        ui_builder = UIBuilder(root=PATH_DIST)
+        ui_builder = UIBuilder(dist=PATH_DIST, config=self._config)
 
         should_create_qt_shim: bool = False
         for qt_version in qt_versions:
@@ -145,7 +145,7 @@ class AddonBuilder:
             ext=ext,
         )
 
-        out_path = PATH_ROOT / "build" / out_name
+        out_path = PATH_PROJECT_ROOT / "build" / out_name
 
         if out_path.exists():
             out_path.unlink()
