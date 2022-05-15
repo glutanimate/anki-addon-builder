@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "aab"
-version = "1.0.0-dev.4"
+version = "1.0.0-dev.5"
 description = "Anki Add-on Builder"
 authors = ["Aristotelis P. (Glutanimate)"]
 license = "AGPL-3.0-or-later"
