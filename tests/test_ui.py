@@ -123,7 +123,7 @@ def test_resources_only_no_forms(tmp_path: Path):
     test_project_root = tmp_path / "project-with-no-forms"
     sample_project_root = SAMPLE_PROJECTS_FOLDER / "project-with-no-forms"
     copytree(sample_project_root, test_project_root)
-    
+
     gui_src_path = test_project_root / "src" / "sample_project" / "gui"
 
     expected_file_structure = """\
@@ -143,7 +143,7 @@ gui/
         assert ui_builder.build(QtVersion.qt5) is False
         assert ui_builder.build(QtVersion.qt6) is False
         assert ui_builder.create_qt_shim() is False
-    
+
     assert (
         list_files(gui_src_path) == expected_file_structure
     ), "Issue with GUI file structure"
