@@ -127,7 +127,7 @@ class UIBuilder:
 
         self._format_dict = self._get_format_dict()
 
-    def build(self, qt_version: QtVersion, pyenv=None):
+    def build(self, qt_version: QtVersion, pyenv=None) -> bool:
         qt_version_key = qt_version.name
 
         logging.info("Starting UI build tasks for target %r...", qt_version_key)
@@ -148,9 +148,9 @@ class UIBuilder:
                 f"No Qt forms folder found under {self._forms_source_path}. Skipping"
                 " build."
             )
-            return
+            return False
 
-        self._build(
+        ret = self._build(
             path_in=path_in,
             path_out=path_out,
             qt_version_number=qt_version.value,
@@ -160,7 +160,11 @@ class UIBuilder:
 
         logging.info("Done with all UI build tasks.")
 
+        return ret
+
     def create_qt_shim(self):
+        if not self._forms_out_path.is_dir():
+            return False
         out_path = self._forms_out_path / "__init__.py"
         if out_path.exists():
             out_path.unlink()
@@ -168,6 +172,7 @@ class UIBuilder:
         content = _template_qt_shim.format(**format_dict)
         with out_path.open("w", encoding="utf-8") as f:
             f.write(content)
+        return True
 
     def _build(
         self,
@@ -176,7 +181,7 @@ class UIBuilder:
         qt_version_number: int,
         resource_prefixes_to_replace: List[str],
         pyenv: Optional[str] = None,
-    ):
+    ) -> bool:
         tool = self._ui_file_tool
 
         # Basic checks

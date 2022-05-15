@@ -115,10 +115,12 @@ class AddonBuilder:
 
         ui_builder = UIBuilder(root=PATH_DIST)
 
+        should_create_qt_shim: bool = False
         for qt_version in qt_versions:
-            ui_builder.build(qt_version=qt_version, pyenv=pyenv)
+            if ui_builder.build(qt_version=qt_version, pyenv=pyenv):
+                should_create_qt_shim = True
 
-        if ui_builder._gui_path.exists():
+        if should_create_qt_shim:
             logging.info("Writing Qt compatibility shim...")
             ui_builder.create_qt_shim()
             logging.info("Done.")
