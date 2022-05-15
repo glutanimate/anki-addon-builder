@@ -202,8 +202,8 @@ class UIBuilder:
 
         logging.info(
             "Building files in '%s' to '%s' with '%s'",
-            self._rel_path(path_in),
-            self._rel_path(path_out),
+            self._relative_to_cwd(path_in),
+            self._relative_to_cwd(path_out),
             tool,
         )
 
@@ -229,8 +229,8 @@ class UIBuilder:
             cmd = "{env} {tool} {in_file} -o {out_file}".format(
                 env=env,
                 tool=tool,
-                in_file=self._rel_path(in_file),
-                out_file=self._rel_path(out_file),
+                in_file=self._relative_to_cwd(in_file),
+                out_file=self._relative_to_cwd(out_file),
             )
             call_shell(cmd)
 
@@ -253,7 +253,7 @@ class UIBuilder:
         )
 
     def _write_init_file(self, modules, path_out):
-        logging.debug("Generating init file for %s", self._rel_path(path_out))
+        logging.debug("Generating init file for %s", self._relative_to_cwd(path_out))
 
         header = _template_header.format(**self._format_dict)
         all_str = self._generate_all_str(modules)
@@ -278,7 +278,7 @@ class UIBuilder:
         Munge generated form to remove resource imports
         (I prefer to initialize these manually)
         """
-        logging.debug("Munging %s...", self._rel_path(path))
+        logging.debug("Munging %s...", self._relative_to_cwd(path))
         with path.open("r+", encoding="utf-8") as f:
             form = f.read()
             munged = self._re_munge.sub("", form)
@@ -339,5 +339,5 @@ class UIBuilder:
 
         return format_dict
 
-    def _rel_path(self, path: Path):
-        return path.relative_to(self._dist)
+    def _relative_to_cwd(self, path: Path):
+        return path.relative_to(Path.cwd())
