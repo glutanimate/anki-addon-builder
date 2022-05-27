@@ -34,6 +34,8 @@ Basic Git interface
 """
 
 import logging
+import re
+import sys
 
 from .utils import call_shell
 
@@ -78,13 +80,33 @@ class Git(object):
         if version == "dev":
             # Get timestamps of uncommitted changes and return the most recent.
             # https://stackoverflow.com/a/14142413
-            cmd = (
-                "git status -s | while read mode file;"
-                " do echo $(stat -c %Y $file); done"
-            )
-            modtimes = call_shell(cmd).splitlines()
+            if sys.platform.startswith("linux"):
+                cmd = (
+                    "git status -s | while read mode file;"
+                    " do echo $(stat -c %Y $file); done"
+                )
+            elif sys.platform.startswith("darwin"):
+                cmd = (
+                    "git status -s | while read mode file;"
+                    " do echo $mode $(stat -f \"%m\" $file) $file; done|sort"
+                )
+            elif sys.platform.startswith("win32"):
+                cmd = (
+                    "git status -s | while read mode file;"
+                    " do echo $mode $(date --reference=$file"
+                    " +\"%Y-%m-%d %H:%M:%S\") $file; done"
+                )
+            else:
+                raise OSError(
+                    "Getting timestamps of uncommitted changes on your OS"
+                    f" ({sys.platform}) isn't supported."
+                )
+
+            # Converting output of the form "M 1618523117 designer/options.ui"
+            # to just the timestamp
             # https://stackoverflow.com/a/12010656
-            modtimes = [int(modtime) for modtime in modtimes]
+            modtimes = [int(re.search(r"[\d]+", output).group())
+                        for output in call_shell(cmd).splitlines()]
             return max(modtimes)
         else:
             return int(call_shell("git log -1 -s --format=%ct {}".format(version)))
